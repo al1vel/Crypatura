@@ -1,4 +1,5 @@
 #include "bit_operations.h"
+#include <cstdint>
 
 bool get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst) {
     size_t byte_index;

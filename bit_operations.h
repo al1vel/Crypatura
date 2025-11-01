@@ -1,5 +1,6 @@
 #ifndef CRYPATURA_BIT_OPERATIONS_H
 #define CRYPATURA_BIT_OPERATIONS_H
+#include <cstdint>
 
 
 bool get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst);
