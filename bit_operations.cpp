@@ -1,7 +1,7 @@
 #include "bit_operations.h"
 #include <cstdint>
 
-bool get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst) {
+uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst) {
     size_t byte_index;
     size_t bit_index;
     if (isMajorFirst) {
@@ -29,14 +29,23 @@ void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, const bool i
     arr[byte_index] |= b;
 }
 
-void permutation(const uint8_t *arr, uint8_t *res, const size_t len, const int *p_block, bool isMajorFirst, bool isStartPermZero) {
-    for (size_t arr_ind = 0; arr_ind < len; ++arr_ind) {
-        if (get_bit(arr, arr_ind, len, isMajorFirst)) {
-            int pos = p_block[arr_ind];
-            if (!isStartPermZero) {
-                --pos;
-            }
-            set_bit_true(res, pos, len, isMajorFirst);
+void permutation(const uint8_t *arr, uint8_t *res, const size_t len, const int *p_block, const size_t p_block_len, bool isMajorFirst, bool isStartPermZero) {
+
+    for (size_t p_index = 0; p_index < len; ++p_index) {
+        // if (get_bit(arr, arr_ind, len, isMajorFirst)) {
+        //     int pos = p_block[arr_ind];
+        //     if (!isStartPermZero) {
+        //         --pos;
+        //     }
+        //     set_bit_true(res, pos, len, isMajorFirst);
+        // }
+
+        int pos = p_block[p_index];
+        if (!isStartPermZero) {
+            --pos;
+        }
+        if (get_bit(arr, pos, len, isMajorFirst)) {
+            set_bit_true(res, p_index, p_block_len, isMajorFirst);
         }
     }
 }

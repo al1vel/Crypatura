@@ -5,7 +5,7 @@
 class IRoundFunction {
     public:
 
-    virtual void encryptBlock(uint8_t* arr, size_t len, uint8_t* r_key, size_t key_len, uint8_t* res) = 0;
+    virtual void do_round_func(uint8_t* arr, size_t len, uint8_t* r_key, size_t key_len, uint8_t* res) = 0;
 
     virtual ~IRoundFunction() = default;
 };

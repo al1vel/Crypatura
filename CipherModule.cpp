@@ -1,6 +1,7 @@
 #include "CipherModule.h"
 
-CipherModule::CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding, uint8_t *iv, std::initializer_list<std::any> additional) {
+CipherModule::CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding,
+                           uint8_t *iv, std::initializer_list<std::any> additional) {
     this->cipher = cipher;
     this->key = key;
     this->key_len = key_len;
@@ -12,7 +13,27 @@ CipherModule::CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_le
 
 void CipherModule::encrypt(uint8_t *data, size_t len, uint8_t *out) {
     switch (this->mode) {
-
+        case Mode::ECB: {
+            break;
+        }
+        case Mode::CBC: {
+            break;
+        }
+        case Mode::PCBC: {
+            break;
+        }
+        case Mode::CFB: {
+            break;
+        }
+        case Mode::OFB: {
+            break;
+        }
+        case Mode::CTR: {
+            break;
+        }
+        case Mode::RandomDelta: {
+        }
+        default: {
+        }
     }
 }
-
