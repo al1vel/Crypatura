@@ -1,5 +1,6 @@
 #include "bit_operations.h"
 #include <cstdint>
+#include <iostream>
 
 uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst) {
     size_t byte_index;
@@ -47,5 +48,23 @@ void permutation(const uint8_t *arr, uint8_t *res, const size_t len, const int *
         if (get_bit(arr, pos, len, isMajorFirst)) {
             set_bit_true(res, p_index, p_block_len, isMajorFirst);
         }
+    }
+}
+
+void left_loop_shift(uint8_t* arr, size_t shift, size_t valueble_bits) {
+    if (shift != 0) {
+    size_t bytes_cnt = valueble_bits / 8;
+    if (valueble_bits % 8 != 0) {
+      bytes_cnt += 1;
+    }
+
+    uint64_t value = 0;
+    memcpy(&value, arr, bytes_cnt);
+
+    uint32_t mask = (1ULL << valueble_bits) - 1;
+    value &= mask;
+    value = ((value << shift) | (value >> (valueble_bits - shift))) & mask;
+
+    memcpy(arr, &value, bytes_cnt);
     }
 }
