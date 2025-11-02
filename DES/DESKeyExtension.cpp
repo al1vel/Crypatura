@@ -6,19 +6,37 @@
 void DESKeyExtension::key_extension(uint8_t *init_key, size_t init_key_len, uint8_t **result, size_t rounds) {
     // Check key
 
-    uint8_t reduced_key[4];
+    uint8_t reduced_key[7];
     permutation(init_key, 64, PC_1, 56, true, true, reduced_key);
-
-//    uint64_t key56;
-//    memcpy(key56, reduced_key, 56);
-//    key56 = key56 >> 8;
-
     result = new uint8_t*[16];
 
     for (int i = 0; i < 16; i++) {
       result[i] = new uint8_t[48];
+       uint32_t mask = (1u << 28) - 1;
 
-      uint8_t Ci[4];
+      uint32_t Ci = 0;
+      memcpy(&Ci, reduced_key, 4);
+      Ci = Ci >> 4;
 
+      uint32_t Di = 0;
+      memcpy(&Di, reduced_key + 4, 4);
+      Di = Di >> 4;
+
+      size_t shift;
+        if (i == 0 || i == 1 || i == 3 || i == 15) {
+          shift = 1;
+        } else {
+          shift = 2;
+        }
+
+      Ci = ((Ci << shift) | (Ci >> (28 - shift))) & mask;
+      Di = ((Di << shift) | (Di >> (28 - shift))) & mask;
+
+      uint64_t CiDi = 0;
+      CiDi = (Ci << 28) | (Di & mask);
+      uint8_t CiDiArr[7];
+      memcpy(CiDiArr, &CiDi + 1, 7);
+
+      permutation(CiDiArr, 56, PC_2, 48, true, true, result[i]);
     }
 }
