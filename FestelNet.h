@@ -14,7 +14,7 @@ public:
 
     ~FestelNet();
 
-    void do_festel_net(uint8_t *block);
+    void do_festel_net(uint8_t *block, uint8_t* key);
 };
 
 
