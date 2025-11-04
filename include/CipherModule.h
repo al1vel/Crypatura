@@ -2,6 +2,7 @@
 #define CRYPATURA_CIPHERMODULE_H
 
 #include <any>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include "Interfaces/ISymmetricCipher.h"

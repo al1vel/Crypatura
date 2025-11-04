@@ -6,7 +6,7 @@
 void DESKeyExtension::key_extension(uint8_t *init_key, uint8_t *result) {
     // Check key
 
-    uint8_t reduced_key[7];
+    uint8_t reduced_key[7] = {0, 0, 0, 0, 0, 0, 0};
     permutation(init_key, 64, PC_1, 56, true, true, reduced_key);
 
     for (int i = 0; i < 16; i++) {
@@ -32,7 +32,7 @@ void DESKeyExtension::key_extension(uint8_t *init_key, uint8_t *result) {
 
         uint64_t CiDi = 0;
         CiDi = (Ci << 28) | (Di & mask);
-        uint8_t CiDiArr[7];
+        uint8_t CiDiArr[7] = {0, 0, 0, 0, 0, 0, 0};
         auto *ptr = reinterpret_cast<uint8_t *>(&CiDi);
         memcpy(CiDiArr, ptr + 1, 7);
 

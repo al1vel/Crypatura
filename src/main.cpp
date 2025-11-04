@@ -16,7 +16,7 @@ int main() {
         cipher_blocks += 1;
     }
 
-    auto* ciphertext = new uint8_t[cipher_blocks * 8];
+    auto* ciphertext = new uint8_t[cipher_blocks * 8]();
     cipher_module.encrypt(text, sizeof(text), ciphertext);
 
     printf("%s\n", "Ciphertext:");
@@ -25,8 +25,8 @@ int main() {
     }
     printf("\n");
 
-    auto* plaintext = new uint8_t[cipher_blocks * 8];
-    cipher_module.decrypt(ciphertext, sizeof(text), plaintext);
+    auto* plaintext = new uint8_t[cipher_blocks * 8]();
+    cipher_module.decrypt(ciphertext, cipher_blocks * 8, plaintext);
 
     printf("%s\n", "Plain text:");
     for (size_t i = 0; i < cipher_blocks * 8; i++) {

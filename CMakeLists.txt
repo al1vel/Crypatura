@@ -3,7 +3,6 @@ project(Crypatura)
 
 set(CMAKE_CXX_STANDARD 20)
 
-
 # Пути к заголовочным файлам
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
@@ -28,5 +27,5 @@ target_link_libraries(crypt_main PRIVATE crypto_core)
 if (MSVC)
     target_compile_options(crypto_core PRIVATE /W4 /permissive-)
 else()
-    target_compile_options(crypto_core PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(crypto_core PRIVATE -Wall -Wextra -pedantic -Werror -fsanitize=address -g)
 endif()
