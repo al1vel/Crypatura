@@ -13,28 +13,35 @@ FestelNet::~FestelNet() {
 
 
 void FestelNet::do_festel_net(uint8_t *block, uint8_t *key) const {
+    printf("%s\n", "FESTEL");
     uint8_t keys[16][6];
+    printf("%s\n", "FESTEL - keys");
     key_extenser->key_extension(key, &keys[0][0]);
 
+    printf("%s\n", "FESTEL - l r");
     uint8_t l[4];
     memcpy(l, block, 4);
     uint8_t r[4];
     memcpy(r, block + 4, 4);
 
+    printf("%s\n", "FESTEL start for");
     for (int i = 0; i < 16; i++) {
         uint8_t round_F_result[4];
+        printf("%s\n", "FESTEL do round");
         round_F->do_round_func(r, keys[i], round_F_result);
 
         for (int j = 0; j < 4; j++) {
             round_F_result[j] ^= l[j];
         }
 
+        printf("%s\n", "FESTEL - copy l, r");
         memcpy(l, r, 4);
         memcpy(r, round_F_result, 4);
     }
-
+    printf("%s\n", "FESTEL - return res");
     memcpy(block, r, 4);
     memcpy(block + 4, l, 4);
+    printf("%s\n", "FESTEL done");
 }
 
 void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key) const {

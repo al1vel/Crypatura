@@ -6,7 +6,7 @@
 
 int main() {
     uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!";
-    uint8_t key[8] = {52, 200, 10, 1, 0, 15, 101, 91};
+    uint8_t key[8] = {0, 0, 0, 0, 0, 0, 0, 255};
 
     DES* des_encryptor = new DES();
     CipherModule cipher_module(des_encryptor, key, 64, Mode::ECB, Padding::Zeros);
@@ -17,6 +17,7 @@ int main() {
     }
 
     auto* ciphertext = new uint8_t[cipher_blocks * 8]();
+    printf("%s\n", "New");
     cipher_module.encrypt(text, sizeof(text), ciphertext);
 
     printf("%s\n", "Ciphertext:");

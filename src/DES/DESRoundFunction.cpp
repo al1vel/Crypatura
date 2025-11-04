@@ -3,7 +3,7 @@
 
 void DESRoundFunction::do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res) {
     uint8_t extended_R[6] = {0};
-    permutation(arr, 32, E_table, 48, true, true, extended_R);
+    permutation(arr, 32, E_table, 48, true, false, extended_R);
 
     for (int i = 0; i < 4; i++) {
         extended_R[i] = extended_R[i] ^ r_key[i];
@@ -30,5 +30,5 @@ void DESRoundFunction::do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res)
         ++iter;
     }
 
-    permutation(reduced_R, 32, P_table, 32, true, true, res);
+    permutation(reduced_R, 32, P_table, 32, true, false, res);
 }
