@@ -15,11 +15,10 @@ void CipherModule::encrypt(uint8_t *data, size_t len_bytes, uint8_t *out) const 
     switch (this->mode) {
         case Mode::ECB: {
             size_t blocks = len_bytes / 8;
-            size_t total_blocks = blocks;
-            if (len_bytes % 8 != 0) {
-                total_blocks++;
-            }
-            out = new uint8_t[total_blocks * 8];
+            //size_t total_blocks = blocks;
+            // if (len_bytes % 8 != 0) {
+            //     total_blocks++;
+            // }
 
             for (size_t i = 0; i < blocks; ++i) {
                 cipher->encrypt(data + i * 8, key, out + i * 8);
@@ -59,7 +58,7 @@ void CipherModule::decrypt(uint8_t *data, size_t len_bytes, uint8_t *out) const 
     switch (this->mode) {
         case Mode::ECB: {
             size_t blocks = len_bytes / 8;
-            out = new uint8_t[len_bytes];
+            //out = new uint8_t[len_bytes];
 
             for (size_t i = 0; i < blocks; ++i) {
                 cipher->decrypt(data + i * 8, key, out + i * 8);

@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <iostream>
-#include <ostream>
 
 #include "CipherModule.h"
 #include "DES/DES.h"
@@ -12,19 +11,28 @@ int main() {
     DES* des_encryptor = new DES();
     CipherModule cipher_module(des_encryptor, key, 64, Mode::ECB, Padding::Zeros);
 
-    uint8_t* ciphertext = nullptr;
+    size_t cipher_blocks = sizeof(text) / 8;
+    if (sizeof(text) % 8 != 0) {
+        cipher_blocks += 1;
+    }
+
+    auto* ciphertext = new uint8_t[cipher_blocks * 8];
     cipher_module.encrypt(text, sizeof(text), ciphertext);
 
-    printf("%s\n", "Ciphertext:\n");
-    for (size_t i = 0; i < sizeof(text); i++) {
+    printf("%s\n", "Ciphertext:");
+    for (size_t i = 0; i < cipher_blocks * 8; i++) {
         printf("%02X ", ciphertext[i]);
     }
     printf("\n");
 
-    uint8_t* plaintext = nullptr;
+    auto* plaintext = new uint8_t[cipher_blocks * 8];
     cipher_module.decrypt(ciphertext, sizeof(text), plaintext);
 
-    std::cout << plaintext << std::endl;
+    printf("%s\n", "Plain text:");
+    for (size_t i = 0; i < cipher_blocks * 8; i++) {
+        printf("%02X ", plaintext[i]);
+    }
+    printf("\n");
 
     delete[] plaintext;
     delete[] ciphertext;
