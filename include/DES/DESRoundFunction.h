@@ -69,7 +69,7 @@ const int P_table[32] = {
 
 class DESRoundFunction : public IRoundFunction {
 public:
-    void do_round_func(uint8_t *arr, size_t len, uint8_t *r_key, size_t key_len, uint8_t *res) override;
+    void do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res) override;
 };
 
 

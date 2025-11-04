@@ -1,9 +1,7 @@
-#include "DESRoundFunction.h"
-#include "../bit_operations.h"
+#include "../../include/DES/DESRoundFunction.h"
+#include "../../include/bit_operations.h"
 
-void DESRoundFunction::do_round_func(uint8_t *arr, size_t len, uint8_t *r_key, size_t key_len, uint8_t *res) {
-    res = new uint8_t[4];
-
+void DESRoundFunction::do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res) {
     uint8_t extended_R[6] = {0};
     permutation(arr, 32, E_table, 48, true, true, extended_R);
 

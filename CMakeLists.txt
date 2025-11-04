@@ -3,4 +3,30 @@ project(Crypatura)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Crypatura main.cpp)
+
+# Пути к заголовочным файлам
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# Соберём список всех исходников рекурсивно
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+        ${CMAKE_SOURCE_DIR}/src/*.cpp
+)
+
+# Создаём статическую библиотеку (ядро криптографии)
+add_library(crypto_core STATIC ${SRC_FILES})
+
+# Указываем include-директории для библиотеки
+target_include_directories(crypto_core PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+# Основной исполняемый файл
+add_executable(crypt_main ${CMAKE_SOURCE_DIR}/src/main.cpp)
+
+# Линкуем с нашей библиотекой
+target_link_libraries(crypt_main PRIVATE crypto_core)
+
+# Дополнительно: включаем предупреждения
+if (MSVC)
+    target_compile_options(crypto_core PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(crypto_core PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
