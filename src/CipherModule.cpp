@@ -16,19 +16,15 @@ void CipherModule::encrypt(uint8_t *data, size_t len_bytes, uint8_t *out) const 
         case Mode::ECB: {
             size_t blocks = len_bytes / 8;
 
-            printf("%s\n", "Start encrypt");
             for (size_t i = 0; i < blocks; ++i) {
                 cipher->encrypt(data + i * 8, key, out + i * 8);
-                printf("%s %llu\n", "Encrypt", i);
             }
 
             size_t rem = len_bytes % 8;
             if (rem != 0) {
-                printf("%s\n", "Last encrypt start");
                 uint8_t last_block[8] = {0};
                 memcpy(last_block, data + blocks * 8, rem);
                 cipher->encrypt(last_block, key, out + blocks * 8);
-                printf("%s\n", "Last encrypt");
             }
 
             break;
@@ -65,6 +61,7 @@ void CipherModule::decrypt(uint8_t *data, size_t len_bytes, uint8_t *out) const 
             for (size_t i = 0; i < blocks; ++i) {
                 cipher->decrypt(data + i * 8, key, out + i * 8);
             }
+            break;
         }
         default: {
             break;

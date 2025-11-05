@@ -3,22 +3,22 @@
 
 void DESRoundFunction::do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res) {
     uint8_t extended_R[6] = {0};
-    permutation(arr, 32, E_table, 48, true, false, extended_R);
+    permutation(arr, 32, E_table, 48, extended_R);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 6; i++) {
         extended_R[i] = extended_R[i] ^ r_key[i];
     }
 
     uint8_t reduced_R[4] = {0};
     int iter = 0;
     for (int i = 0; i < 48; i += 6) {
-        int col_num = get_bit(extended_R, i + 1, 48, true) << 3 |
-                      get_bit(extended_R, i + 2, 48, true) << 2 |
-                      get_bit(extended_R, i + 3, 48, true) << 1 |
-                      get_bit(extended_R, i + 4, 48, true) << 0;
+        int col_num = get_bit(extended_R, i + 1, 48, ByteOrder::BIG_ENDIAN) << 3 |
+                      get_bit(extended_R, i + 2, 48, ByteOrder::BIG_ENDIAN) << 2 |
+                      get_bit(extended_R, i + 3, 48, ByteOrder::BIG_ENDIAN) << 1 |
+                      get_bit(extended_R, i + 4, 48, ByteOrder::BIG_ENDIAN) << 0;
 
-        int row_num = get_bit(extended_R, i + 0, 48, true) << 1 |
-                      get_bit(extended_R, i + 5, 48, true) << 0;
+        int row_num = get_bit(extended_R, i + 0, 48, ByteOrder::BIG_ENDIAN) << 1 |
+                      get_bit(extended_R, i + 5, 48, ByteOrder::BIG_ENDIAN) << 0;
 
         int index = iter * 64 + row_num * 16 + col_num;
         uint8_t reduced4bits = S_table[index];
@@ -30,5 +30,5 @@ void DESRoundFunction::do_round_func(uint8_t *arr, uint8_t *r_key, uint8_t *res)
         ++iter;
     }
 
-    permutation(reduced_R, 32, P_table, 32, true, false, res);
+    permutation(reduced_R, 32, P_table, 32, res);
 }

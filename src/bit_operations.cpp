@@ -2,42 +2,42 @@
 #include <cstdint>
 #include <iostream>
 
-uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isStraight) {
+uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order) {
     size_t byte_index;
     size_t bit_index;
-    if (isStraight) {
-        byte_index = len / 8 - (pos / 8) - 1;
+    if (byte_order == ByteOrder::BIG_ENDIAN) {
+        byte_index = pos / 8;
         bit_index = 7 - (pos % 8);
     } else {
-        byte_index = len - 1 - (pos / 8);
-        bit_index = 7 - (pos % 8);
+        byte_index = (len - 1 - pos) / 8;
+        bit_index = pos % 8;
     }
     uint8_t byte = arr[byte_index];
     return (byte >> bit_index) & 1;
 }
 
-void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, const bool isStraight) {
+void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order) {
     size_t byte_index;
     size_t bit_index;
-    if (isStraight) {
-        byte_index = len / 8 - (pos / 8) - 1;
-        bit_index = pos % 8;
-    } else {
-        byte_index = len - 1 - (pos / 8);
+    if (byte_order == ByteOrder::BIG_ENDIAN) {
+        byte_index = pos / 8;
         bit_index = 7 - (pos % 8);
+    } else {
+        byte_index = (len - 1 - pos) / 8;
+        bit_index = pos % 8;
     }
     uint8_t b = 1 << bit_index;
     arr[byte_index] |= b;
 }
 
-void permutation(const uint8_t *arr, const size_t len, const int *p_block, const size_t p_block_len, bool isStraight, bool isStartPermZero, uint8_t *res) {
+void permutation(const uint8_t *arr, const size_t len, const int *p_block, const size_t p_block_len, uint8_t *res, ByteOrder byte_order, PBlockStartIndex p_start) {
     for (size_t p_index = 0; p_index < p_block_len; ++p_index) {
         int pos = p_block[p_index];
-        if (!isStartPermZero) {
+        if (p_start == PBlockStartIndex::START_ONE) {
             --pos;
         }
-        if (get_bit(arr, pos, len, isStraight)) {
-            set_bit_true(res, p_index, p_block_len, isStraight);
+        if (get_bit(arr, pos, len, byte_order)) {
+            set_bit_true(res, p_index, p_block_len, byte_order);
         }
     }
 }

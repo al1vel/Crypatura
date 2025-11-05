@@ -2,12 +2,21 @@
 #define CRYPATURA_BIT_OPERATIONS_H
 #include <cstdint>
 
+enum class ByteOrder {
+    BIG_ENDIAN,
+    LITTLE_ENDIAN
+};
 
-uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst);
+enum class PBlockStartIndex {
+    START_ZERO,
+    START_ONE,
+};
 
-void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, const bool isMajorFirst);
+uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order);
 
-void permutation(const uint8_t *arr, const size_t len, const int *p_block, const size_t p_block_len, bool isStraight, bool isStartPermZero, uint8_t *res);
+void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order);
+
+void permutation(const uint8_t *arr, const size_t len, const int *p_block, const size_t p_block_len, uint8_t *res, ByteOrder byte_order = ByteOrder::BIG_ENDIAN, PBlockStartIndex p_start = PBlockStartIndex::START_ONE);
 
 
 #endif //CRYPATURA_BIT_OPERATIONS_H
