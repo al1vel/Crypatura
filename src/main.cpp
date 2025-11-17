@@ -5,11 +5,11 @@
 #include "DES/DES.h"
 
 int main() {
-    // uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!";
-    // uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
+    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!";
+    uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
 
-    uint8_t text[] = "Some text to check DES.\nSome more text.";
-    uint8_t key[8] = {0, 124, 2, 0, 12, 0, 0, 132};
+    // uint8_t text[] = "Some text to check DES.\nSome more text.";
+    // uint8_t key[8] = {0, 124, 2, 0, 12, 0, 0, 132};
 
 
     DES* des_encryptor = new DES();
@@ -24,13 +24,13 @@ int main() {
     for (size_t i = 0; i < blocks * 8; i++) {
         printf("%02X ", ciphertext[i]);
     }
-    printf("\n");
+    printf("\n\n");
 
     uint8_t plaintext[blocks * 8] = {0};
     cipher_module.decrypt(ciphertext, blocks * 8, plaintext);
 
     printf("%s\n", "Plain text:");
-    for (size_t i = 0; i < blocks * 8; i++) {
+    for (size_t i = 0; i < (sizeof(text)); i++) {
         //printf("%02X ", plaintext[i]);
         printf("%c", plaintext[i]);
     }
