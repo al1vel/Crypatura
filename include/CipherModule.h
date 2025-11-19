@@ -25,6 +25,8 @@ public:
     CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding,
                  uint8_t *iv = nullptr, std::initializer_list<std::any> additional = {});
 
+    int getThreadsCount(int default_value) const;
+
     uint8_t* encrypt(uint8_t *data, size_t len_bytes, size_t* out_len) const;
 
     uint8_t* decrypt(uint8_t *data, size_t len, size_t* out_len) const;
@@ -32,6 +34,10 @@ public:
     void encrypt_file(const std::string &inputPath, const std::string &outputPath);
 
     void decrypt_file(const std::string &inputPath, const std::string &outputPath);
+
+    void ECB_thread(int index, int threads_cnt, int total_blocks, uint8_t* data, uint8_t* res, bool enc) const;
+
+    void CBC_thread(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res) const;
 };
 
 
