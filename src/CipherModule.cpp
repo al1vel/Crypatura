@@ -200,6 +200,21 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::OFB: {
+            cipher->encrypt(iv, key, out);
+            uint64_t Ek = *(reinterpret_cast<uint64_t*>(out));
+            *(reinterpret_cast<uint64_t*>(out)) ^= *(reinterpret_cast<uint64_t*>(meta_block));
+
+            for (size_t i = 0; i < full_blocks; ++i) {
+                cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, out + (i + 1) * 8);
+                Ek = *(reinterpret_cast<uint64_t*>(out + (i + 1) * 8));
+                *(reinterpret_cast<uint64_t*>(out + (i + 1) * 8)) ^= *(reinterpret_cast<uint64_t*>(data + i * 8));
+            }
+
+            if (needPadding) {
+                cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, out + full_blocks * 8);
+                *(reinterpret_cast<uint64_t*>(out + full_blocks * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (full_blocks - 1) * 8));
+            }
+
             break;
         }
         case Mode::CTR: {
@@ -322,6 +337,10 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             memcpy(out + (total_blocks - 2) * 8, last_block, 8 - invaluable_bytes);
 
             return out;
+        }
+        case Mode::OFB: {
+            cipher->encrypt(iv, key, meta_block);
+            uint64_t Ek = *(reinterpret_cast<uint64_t*>(meta_block));
         }
         default: {
             return nullptr;
