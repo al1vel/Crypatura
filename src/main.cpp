@@ -5,7 +5,7 @@
 #include "DES/DES.h"
 
 int main() {
-    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!";
+    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!!!";
     uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
 
     // uint8_t text[] = "Some text to check DES.\nSome more text.";
@@ -15,27 +15,27 @@ int main() {
     DES* des_encryptor = new DES();
     CipherModule cipher_module(des_encryptor, key, 64, Mode::ECB, Padding::Zeros);
 
-    constexpr uint64_t blocks = ((sizeof(text) + 8 - 1) / 8);
+    std::cout << "Text size: " << sizeof(text) << std::endl;
+    size_t enc_out_len = 0;
+    uint8_t* cipher = cipher_module.encrypt(text, sizeof(text), &enc_out_len);
 
-    uint8_t ciphertext[blocks * 8] = {0};
-    cipher_module.encrypt(text, sizeof(text), ciphertext);
-
-    printf("%s\n", "Ciphertext:");
-    for (size_t i = 0; i < blocks * 8; i++) {
-        printf("%02X ", ciphertext[i]);
+    std::cout << "Cipher (" << enc_out_len << " bytes):" << std::endl;
+    for (size_t i = 0; i < enc_out_len; i++) {
+        printf("%02X ", cipher[i]);
     }
     printf("\n\n");
 
-    uint8_t plaintext[blocks * 8] = {0};
-    cipher_module.decrypt(ciphertext, blocks * 8, plaintext);
+    size_t dec_out_len = 0;
+    uint8_t* plain = cipher_module.decrypt(cipher, enc_out_len, &dec_out_len);
 
-    printf("%s\n", "Plain text:");
-    for (size_t i = 0; i < (sizeof(text)); i++) {
-        //printf("%02X ", plaintext[i]);
-        printf("%c", plaintext[i]);
+    std::cout << "Plain (" << dec_out_len << " bytes):" << std::endl;
+    for (size_t i = 0; i < dec_out_len; ++i) {
+        printf("%c", plain[i]);
     }
     printf("\n");
 
     delete des_encryptor;
+    delete cipher;
+    delete plain;
     return 0;
 }

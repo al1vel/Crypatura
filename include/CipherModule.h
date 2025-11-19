@@ -25,9 +25,9 @@ public:
     CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding,
                  uint8_t *iv = nullptr, std::initializer_list<std::any> additional = {});
 
-    void encrypt(uint8_t *data, size_t len_bytes, uint8_t *out) const;
+    uint8_t* encrypt(uint8_t *data, size_t len_bytes, size_t* out_len) const;
 
-    void decrypt(uint8_t *data, size_t len, uint8_t *out) const;
+    uint8_t* decrypt(uint8_t *data, size_t len, size_t* out_len) const;
 
     void encrypt_file(const std::string &inputPath, const std::string &outputPath);
 
