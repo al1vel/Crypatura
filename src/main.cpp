@@ -15,7 +15,7 @@ int main() {
 
 
     DES* des_encryptor = new DES();
-    CipherModule cipher_module(des_encryptor, key, 64, Mode::PCBC, Padding::ISO10126, iv, { 2 });
+    CipherModule cipher_module(des_encryptor, key, 64, Mode::CFB, Padding::ISO10126, iv, { 2 });
 
     std::cout << "Text size: " << sizeof(text) << std::endl;
     size_t enc_out_len = 0;

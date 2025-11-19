@@ -38,6 +38,8 @@ public:
     void ECB_thread(int index, int threads_cnt, int total_blocks, uint8_t* data, uint8_t* res, bool enc) const;
 
     void CBC_thread(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res) const;
+
+    void CFB_thread(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res) const;
 };
 
 
