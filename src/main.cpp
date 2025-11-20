@@ -5,7 +5,7 @@
 #include "DES/DES.h"
 
 int main() {
-    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!";
+    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!!1";
     uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
 
     // uint8_t text[] = "Some text to check DES.\nSome more text.";
@@ -15,7 +15,7 @@ int main() {
 
 
     DES* des_encryptor = new DES();
-    CipherModule cipher_module(des_encryptor, key, 64, Mode::CFB, Padding::ISO10126, iv, { 2 });
+    CipherModule cipher_module(des_encryptor, key, 64, Mode::CTR, Padding::ISO10126, iv, { 2 });
 
     std::cout << "Text size: " << sizeof(text) << std::endl;
     size_t enc_out_len = 0;

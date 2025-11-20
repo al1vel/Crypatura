@@ -52,6 +52,24 @@ void CipherModule::CFB_thread(int index, int threads_cnt, int total_blocks, uint
     }
 }
 
+void CipherModule::Delta_thread_enc(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta) const {
+    for (int i = index; i < total_blocks; i += threads_cnt) {
+        uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
+        iv_val += (i + 1) * delta;
+        cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, res + (i + 1) * 8);
+        *(reinterpret_cast<uint64_t*>(res + (i + 1) * 8)) ^= *(reinterpret_cast<uint64_t*>(data + i * 8));
+    }
+}
+
+void CipherModule::Delta_thread_dec(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta) const {
+    for (int i = index; i < total_blocks; i += threads_cnt) {
+        uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
+        iv_val += (i + 1) * delta;
+        cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, res + i * 8);
+        *(reinterpret_cast<uint64_t*>(res + i * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * 8));
+    }
+}
+
 uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len) const {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -200,6 +218,11 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::OFB: {
+            if (iv == nullptr) {
+                std::cerr << "Encrypt with CFB got Null IV" << std::endl;
+                return nullptr;
+            }
+
             cipher->encrypt(iv, key, out);
             uint64_t Ek = *(reinterpret_cast<uint64_t*>(out));
             *(reinterpret_cast<uint64_t*>(out)) ^= *(reinterpret_cast<uint64_t*>(meta_block));
@@ -211,18 +234,44 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             }
 
             if (needPadding) {
-                cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, out + full_blocks * 8);
-                *(reinterpret_cast<uint64_t*>(out + full_blocks * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (full_blocks - 1) * 8));
+                cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, out + (full_blocks + 1) * 8);
+                *(reinterpret_cast<uint64_t*>(out + (full_blocks + 1) * 8)) ^= *(reinterpret_cast<uint64_t*>(data + full_blocks * 8));
             }
 
             break;
         }
         case Mode::CTR: {
+            if (iv == nullptr) {
+                std::cerr << "Encrypt with CFB got Null IV" << std::endl;
+                return nullptr;
+            }
+
+            cipher->encrypt(iv, key, out);
+            *(reinterpret_cast<uint64_t*>(out)) ^= *(reinterpret_cast<uint64_t*>(meta_block));
+
+            int threads_cnt = getThreadsCount(4);
+            std::vector<std::thread> threads;
+            for (int i = 0; i < threads_cnt; ++i) {
+                threads.emplace_back(&CipherModule::Delta_thread_enc, this, i, threads_cnt, full_blocks, data, out, 1);
+            }
+
+            for (auto &t: threads) {
+                t.join();
+            }
+
+            if (needPadding) {
+                uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
+                iv_val += full_blocks + 1;
+                cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, out + (full_blocks + 1) * 8);
+                *(reinterpret_cast<uint64_t*>(out + (full_blocks + 1) * 8)) ^= *(reinterpret_cast<uint64_t*>(last_block));
+            }
+
             break;
         }
         case Mode::RandomDelta: {
         }
         default: {
+            std::cout << "Default case in encrypt modes" << std::endl;
             break;
         }
     }
@@ -325,7 +374,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             int threads_cnt = getThreadsCount(4);
             std::vector<std::thread> threads;
             for (int i = 0; i < threads_cnt; ++i) {
-                threads.emplace_back(&CipherModule::CFB_thread, this, i, threads_cnt, total_blocks - 2, data + 8, out);
+                threads.emplace_back(&CipherModule::CFB_thread, this, i, threads_cnt, total_blocks - 1, data, out);
             }
             for (auto &t: threads) {
                 t.join();
@@ -341,6 +390,52 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         case Mode::OFB: {
             cipher->encrypt(iv, key, meta_block);
             uint64_t Ek = *(reinterpret_cast<uint64_t*>(meta_block));
+            *(reinterpret_cast<uint64_t*>(meta_block)) ^= *(reinterpret_cast<uint64_t*>(data));
+            size_t invaluable_bytes = meta_block[0];
+            size_t out_bytes = (total_blocks - 1) * 8 - invaluable_bytes;
+            *(out_len) = out_bytes;
+
+            auto *out = new uint8_t[out_bytes]();
+
+            for (size_t i = 0; i < total_blocks - 2; ++i) {
+                cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, out + i * 8);
+                Ek = *(reinterpret_cast<uint64_t*>(out + i * 8));
+                *(reinterpret_cast<uint64_t*>(out + i * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * 8));
+            }
+
+            uint8_t last_block[8] = {0};
+            cipher->encrypt(reinterpret_cast<uint8_t*>(&Ek), key, last_block);
+            *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * 8));
+            memcpy(out + (total_blocks - 2) * 8, last_block, 8 - invaluable_bytes);
+
+            return out;
+        }
+        case Mode::CTR: {
+            cipher->encrypt(iv, key, meta_block);
+            *(reinterpret_cast<uint64_t*>(meta_block)) ^= *(reinterpret_cast<uint64_t*>(data));
+            size_t invaluable_bytes = meta_block[0];
+            size_t out_bytes = (total_blocks - 1) * 8 - invaluable_bytes;
+            *(out_len) = out_bytes;
+
+            auto *out = new uint8_t[out_bytes]();
+
+            int threads_cnt = getThreadsCount(4);
+            std::vector<std::thread> threads;
+            for (int i = 0; i < threads_cnt; ++i) {
+                threads.emplace_back(&CipherModule::Delta_thread_dec, this, i, threads_cnt, total_blocks - 1, data, out, 1);
+            }
+            for (auto &t: threads) {
+                t.join();
+            }
+
+            uint8_t last_block[8] = {0};
+            uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
+            iv_val += total_blocks - 1;
+            cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, last_block);
+            *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * 8));
+            memcpy(out + (total_blocks - 1) * 8, last_block, 8 - invaluable_bytes);
+
+            return out;
         }
         default: {
             return nullptr;
