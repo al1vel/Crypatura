@@ -31,9 +31,9 @@ public:
 
     uint8_t* decrypt(uint8_t *data, size_t len, size_t* out_len) const;
 
-    void encrypt_file(const std::string &inputPath, const std::string &outputPath);
+    void encrypt_file(const std::string &inputPath, const std::string &outputPath) const;
 
-    void decrypt_file(const std::string &inputPath, const std::string &outputPath);
+    void decrypt_file(const std::string &inputPath, const std::string &outputPath) const;
 
     void ECB_thread(int index, int threads_cnt, int total_blocks, uint8_t* data, uint8_t* res, bool enc) const;
 

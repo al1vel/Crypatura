@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <thread>
+#include <fstream>
 
 CipherModule::CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding,
                            uint8_t *iv, std::initializer_list<std::any> additional) {
@@ -439,6 +440,48 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
         default: {
             return nullptr;
+        }
+    }
+}
+
+void CipherModule::encrypt_file(const std::string &inputPath, const std::string &outputPath) const {
+    std::ifstream in(inputPath, std::ios::binary);
+    std::ofstream out(outputPath, std::ios::binary);
+
+    constexpr size_t BLOCK_SIZE = 16384;
+    uint8_t buffer[BLOCK_SIZE];
+
+    while (in) {
+        in.read(reinterpret_cast<char*>(buffer), BLOCK_SIZE);
+        std::streamsize bytes_read = in.gcount();
+
+        if (bytes_read > 0) {
+            size_t out_len = 0;
+            uint8_t* enc = encrypt(buffer, bytes_read, &out_len);
+
+            out.write(reinterpret_cast<char*>(enc), out_len);
+            delete enc;
+        }
+    }
+}
+
+void CipherModule::decrypt_file(const std::string &inputPath, const std::string &outputPath) const {
+    std::ifstream in(inputPath, std::ios::binary);
+    std::ofstream out(outputPath, std::ios::binary);
+
+    constexpr size_t BLOCK_SIZE = 16392;
+    uint8_t buffer[BLOCK_SIZE];
+
+    while (in) {
+        in.read(reinterpret_cast<char*>(buffer), BLOCK_SIZE);
+        std::streamsize bytes_read = in.gcount();
+
+        if (bytes_read > 0) {
+            size_t out_len = 0;
+            uint8_t* dec = decrypt(buffer, bytes_read, &out_len);
+
+            out.write(reinterpret_cast<char*>(dec), out_len);
+            delete dec;
         }
     }
 }
