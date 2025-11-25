@@ -15,7 +15,7 @@ FestelNet::~FestelNet() {
 
 void FestelNet::do_festel_net(uint8_t *block, uint8_t *key) const {
     uint8_t keys[96] = {0};
-    key_extenser->key_extension(key, keys);
+    key_extenser->key_extension(key, 64, keys);
 
     uint32_t l32 = (*reinterpret_cast<uint32_t*>(block));
     uint32_t r32 = (*reinterpret_cast<uint32_t*>(block + 4));
@@ -38,7 +38,7 @@ void FestelNet::do_festel_net(uint8_t *block, uint8_t *key) const {
 
 void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key) const {
     uint8_t keys[96] = {0};
-    key_extenser->key_extension(key, keys);
+    key_extenser->key_extension(key, 64, keys);
 
     uint32_t l32 = (*reinterpret_cast<uint32_t*>(block));
     uint32_t r32 = (*reinterpret_cast<uint32_t*>(block + 4));

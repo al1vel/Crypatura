@@ -3,11 +3,11 @@
 #include <iostream>
 #include <cstring>
 
-void DESKeyExtension::key_extension(uint8_t *init_key, uint8_t *result) {
+void DESKeyExtension::key_extension(uint8_t *init_key, size_t init_key_len, uint8_t *result) {
     uint8_t CiArr[4] = {0};
     uint8_t DiArr[4] = {0};
-    permutation(init_key, 64, PC_1[0], 28, CiArr);
-    permutation(init_key, 64, PC_1[1], 28, DiArr);
+    permutation(init_key, init_key_len, PC_1[0], 28, CiArr);
+    permutation(init_key, init_key_len, PC_1[1], 28, DiArr);
 
     uint32_t Ci = *(reinterpret_cast<uint32_t*>(CiArr));
     uint32_t Di = *(reinterpret_cast<uint32_t*>(DiArr));

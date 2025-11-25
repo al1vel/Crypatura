@@ -11,7 +11,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
         ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
 
-# Создаём статическую библиотеку (ядро криптографии)
+# Создаём статическую библиотеку
 add_library(crypto_core STATIC ${SRC_FILES})
 
 # Указываем include-директории для библиотеки

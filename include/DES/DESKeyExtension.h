@@ -31,7 +31,7 @@ const int PC_2[48] = {
 
 class DESKeyExtension : public IKeyExtension {
 public:
-    void key_extension(uint8_t *init_key, uint8_t *result) override;
+    void key_extension(uint8_t *init_key, size_t init_key_len, uint8_t *result) override;
 };
 
 
