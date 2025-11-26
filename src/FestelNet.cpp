@@ -13,48 +13,47 @@ FestelNet::~FestelNet() {
 }
 
 
-void FestelNet::do_festel_net(uint8_t *block, uint8_t *key) const {
-    uint8_t keys[96] = {0};
-    key_extenser->key_extension(key, 64, keys);
+void FestelNet::do_festel_net(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
+    auto* keys = new uint8_t[r_key_size * rounds_cnt]();
+    key_extenser->key_extension(key, key_len, keys);
 
-    uint32_t l32 = (*reinterpret_cast<uint32_t*>(block));
-    uint32_t r32 = (*reinterpret_cast<uint32_t*>(block + 4));
+    uint64_t l = (*reinterpret_cast<uint64_t*>(block));
+    uint64_t r = (*reinterpret_cast<uint64_t*>(block + (block_size / 2)));
 
-    for (int i = 0; i < 16; i++) {
-        uint8_t round_F_result[4] = {0};
-        uint8_t* r_ptr = reinterpret_cast<uint8_t*>(&r32);
-        round_F->do_round_func(r_ptr, keys + i * 6, round_F_result);
+    for (size_t i = 0; i < rounds_cnt; i++) {
+        uint64_t round_F_result = 0;
+        auto* r_ptr = reinterpret_cast<uint8_t*>(&r);
+        round_F->do_round_func(r_ptr, keys + i * r_key_size, reinterpret_cast<uint8_t*>(&round_F_result));
+        uint64_t xor_result = round_F_result ^ l;
 
-        uint32_t xor_result = (*reinterpret_cast<uint32_t*>(round_F_result)) ^ l32;
-
-        l32 = r32;
-        r32 = xor_result;
+        l = r;
+        r = xor_result;
     }
 
-    uint32_t* bl = reinterpret_cast<uint32_t*>(block);
-    (*bl) = r32;
-    *(bl + 1) = l32;
+    //memcpy(block, &r, block_size / 2);
+    //memcpy(block + block_size / 2, &l, block_size / 2);
+    delete[] keys;
 }
 
-void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key) const {
-    uint8_t keys[96] = {0};
-    key_extenser->key_extension(key, 64, keys);
+void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
+    auto* keys = new uint8_t[r_key_size * rounds_cnt]();
+    key_extenser->key_extension(key, key_len, keys);
 
-    uint32_t l32 = (*reinterpret_cast<uint32_t*>(block));
-    uint32_t r32 = (*reinterpret_cast<uint32_t*>(block + 4));
+    uint64_t l = (*reinterpret_cast<uint64_t*>(block));
+    uint64_t r = (*reinterpret_cast<uint64_t*>(block + (block_size / 2)));
 
-    for (int i = 0; i < 16; i++) {
-        uint8_t round_F_result[4] = {0};
-        uint8_t* r_ptr = reinterpret_cast<uint8_t*>(&r32);
-        round_F->do_round_func(r_ptr, keys + ((15 - i) * 6), round_F_result);
+    for (size_t i = 0; i < rounds_cnt; i++) {
+        uint64_t round_F_result = 0;
+        auto* r_ptr = reinterpret_cast<uint8_t*>(&r);
+        round_F->do_round_func(r_ptr, keys + (rounds_cnt - i - 1) * r_key_size, reinterpret_cast<uint8_t*>(&round_F_result));
+        uint64_t xor_result = round_F_result ^ l;
 
-        uint32_t xor_result = (*reinterpret_cast<uint32_t*>(round_F_result)) ^ l32;
-
-        l32 = r32;
-        r32 = xor_result;
+        l = r;
+        r = xor_result;
     }
 
-    uint32_t* bl = reinterpret_cast<uint32_t*>(block);
-    (*bl) = r32;
-    *(bl + 1) = l32;
+
+    //memcpy(block, &r, block_size / 2);
+    //memcpy(block + block_size / 2, &l, block_size / 2);
+    delete[] keys;
 }

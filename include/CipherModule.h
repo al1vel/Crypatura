@@ -14,6 +14,7 @@ enum class Padding { Zeros, ANSI_X923, PKCS7, ISO10126 };
 class CipherModule {
 private:
     ISymmetricCipher *cipher;
+    size_t blocksiz;
     uint8_t *key;
     size_t key_len;
     Mode mode;
@@ -22,7 +23,7 @@ private:
     std::vector<std::any> additionalParams;
 
 public:
-    CipherModule(ISymmetricCipher *cipher, uint8_t *key, size_t key_len, Mode mode, Padding padding,
+    CipherModule(ISymmetricCipher *cipher, size_t block_size, uint8_t *key, size_t key_len, Mode mode, Padding padding,
                  uint8_t *iv = nullptr, std::initializer_list<std::any> additional = {});
 
     int getThreadsCount(int default_value) const;
@@ -33,7 +34,7 @@ public:
 
     void encrypt_file(const std::string &inputPath, const std::string &outputPath) const;
 
-    void decrypt_file(const std::string &inputPath, const std::string &outputPath) const;
+    void decrypt_file(const std::string &inputPath, const std::string &outputPath, size_t block_size) const;
 
     void ECB_thread(int index, int threads_cnt, int total_blocks, uint8_t* data, uint8_t* res, bool enc) const;
 
