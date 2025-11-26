@@ -17,7 +17,7 @@ int main() {
     DEAL* deal_encryptor = new DEAL(128);
 
     CipherModule cipher_module(des_encryptor, 8, key, 64, Mode::CBC, Padding::Zeros, iv, { 4 });
-    CipherModule deal(deal_encryptor, 16, deal_key, 128, Mode::ECB, Padding::Zeros, deal_iv, { 8 });
+    CipherModule deal(deal_encryptor, 16, deal_key, 128, Mode::ECB, Padding::Zeros, deal_iv, { 16 });
 
     // std::cout << "Text size: " << sizeof(text) << std::endl;
     // size_t enc_out_len = 0;
@@ -25,7 +25,8 @@ int main() {
     //
     // std::cout << "Cipher (" << enc_out_len << " bytes):" << std::endl;
     // for (size_t i = 0; i < enc_out_len; i++) {
-    //     printf("%02X ", cipher[i]);
+    //     //printf("%02X ", cipher[i]);
+    //     printf("%c", cipher[i]);
     // }
     // printf("\n\n");
     //
@@ -48,7 +49,8 @@ int main() {
     //
     // std::cout << "Cipher (" << enc_out_len << " bytes):" << std::endl;
     // for (size_t i = 0; i < enc_out_len; i++) {
-    //     printf("%02X ", cipher[i]);
+    //     //printf("%02X ", cipher[i]);
+    //     printf("%c", cipher[i]);
     // }
     // printf("\n\n");
     //

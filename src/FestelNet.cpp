@@ -30,8 +30,8 @@ void FestelNet::do_festel_net(uint8_t *block, uint8_t *key, size_t key_len, size
         r = xor_result;
     }
 
-    //memcpy(block, &r, block_size / 2);
-    //memcpy(block + block_size / 2, &l, block_size / 2);
+    memcpy(block, &r, block_size / 2);
+    memcpy(block + block_size / 2, &l, block_size / 2);
     delete[] keys;
 }
 
@@ -53,7 +53,7 @@ void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key, size_t key_l
     }
 
 
-    //memcpy(block, &r, block_size / 2);
-    //memcpy(block + block_size / 2, &l, block_size / 2);
+    memcpy(block, &r, block_size / 2);
+    memcpy(block + block_size / 2, &l, block_size / 2);
     delete[] keys;
 }
