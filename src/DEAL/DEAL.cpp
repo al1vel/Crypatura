@@ -12,8 +12,8 @@ void DEAL::encrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
     } else if (key_len == 256) {
         rounds_cnt = 8;
     }
-    festel_net.do_festel_net(block, key, key_len, rounds_cnt, 8, 16);
-    memcpy(res, block, 16);
+    festel_net.do_festel_net(block, key, res, key_len, rounds_cnt, 8, 16);
+    //memcpy(res, block, 16);
 }
 
 void DEAL::decrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
@@ -23,6 +23,6 @@ void DEAL::decrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
     } else if (key_len == 256) {
         rounds_cnt = 8;
     }
-    festel_net.do_festel_net_reverse(block, key, key_len, rounds_cnt, 8, 16);
-    memcpy(res, block, 16);
+    festel_net.do_festel_net_reverse(block, key, res, key_len, rounds_cnt, 8, 16);
+    //memcpy(res, block, 16);
 }

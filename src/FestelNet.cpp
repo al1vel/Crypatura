@@ -13,7 +13,7 @@ FestelNet::~FestelNet() {
 }
 
 
-void FestelNet::do_festel_net(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
+void FestelNet::do_festel_net(uint8_t *block, uint8_t *key, uint8_t* out, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
     auto* keys = new uint8_t[r_key_size * rounds_cnt]();
     key_extenser->key_extension(key, key_len, keys);
 
@@ -30,12 +30,12 @@ void FestelNet::do_festel_net(uint8_t *block, uint8_t *key, size_t key_len, size
         r = xor_result;
     }
 
-    memcpy(block, &r, block_size / 2);
-    memcpy(block + block_size / 2, &l, block_size / 2);
+    memcpy(out, &r, block_size / 2);
+    memcpy(out + block_size / 2, &l, block_size / 2);
     delete[] keys;
 }
 
-void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
+void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key, uint8_t* out, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const {
     auto* keys = new uint8_t[r_key_size * rounds_cnt]();
     key_extenser->key_extension(key, key_len, keys);
 
@@ -53,7 +53,7 @@ void FestelNet::do_festel_net_reverse(uint8_t *block, uint8_t *key, size_t key_l
     }
 
 
-    memcpy(block, &r, block_size / 2);
-    memcpy(block + block_size / 2, &l, block_size / 2);
+    memcpy(out, &r, block_size / 2);
+    memcpy(out + block_size / 2, &l, block_size / 2);
     delete[] keys;
 }

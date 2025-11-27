@@ -14,9 +14,9 @@ public:
 
     ~FestelNet();
 
-    void do_festel_net(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const;
+    void do_festel_net(uint8_t *block, uint8_t *key, uint8_t *out, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const;
 
-    void do_festel_net_reverse(uint8_t *block, uint8_t *key, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const;
+    void do_festel_net_reverse(uint8_t *block, uint8_t *key, uint8_t *out, size_t key_len, size_t rounds_cnt, size_t r_key_size, size_t block_size) const;
 };
 
 
