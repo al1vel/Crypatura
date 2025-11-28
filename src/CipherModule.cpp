@@ -74,7 +74,8 @@ void CipherModule::Delta_thread_enc(int index, int threads_cnt, int total_blocks
         // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
         // iv_val += (i + 1) * delta;
 
-        auto* iv_val = new uint8_t[blocksiz]();
+        //auto* iv_val = new uint8_t[blocksiz]();
+        uint8_t iv_val[16] = {0};
         memcpy(iv_val, iv, blocksiz);
         increment_counter(iv_val, blocksiz, (i + 1) * delta);
 
@@ -82,7 +83,7 @@ void CipherModule::Delta_thread_enc(int index, int threads_cnt, int total_blocks
         for (size_t part = 0; part < blocksiz / 8; ++part) {
             *(reinterpret_cast<uint64_t*>(res + (i + 1) * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + i * blocksiz + part * 8));
         }
-        delete[] iv_val;
+        //delete[] iv_val;
     }
 }
 
@@ -91,7 +92,8 @@ void CipherModule::Delta_thread_dec(int index, int threads_cnt, int total_blocks
         // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
         // iv_val += (i + 1) * delta;
 
-        auto* iv_val = new uint8_t[blocksiz]();
+        //auto* iv_val = new uint8_t[blocksiz]();
+        uint8_t iv_val[16] = {0};
         memcpy(iv_val, iv, blocksiz);
         increment_counter(iv_val, blocksiz, (i + 1) * delta);
 
@@ -99,7 +101,7 @@ void CipherModule::Delta_thread_dec(int index, int threads_cnt, int total_blocks
         for (size_t part = 0; part < blocksiz / 8; ++part) {
             *(reinterpret_cast<uint64_t*>(res + i * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * blocksiz + part * 8));
         }
-        delete[] iv_val;
+        //delete[] iv_val;
     }
 }
 
@@ -117,7 +119,8 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         needPadding = true;
     }
 
-    auto* last_block = new uint8_t[blocksiz]();
+    //auto* last_block = new uint8_t[blocksiz]();
+    uint8_t last_block[16] = {0};
     if (needPadding) {
         memcpy(last_block, data + full_blocks * blocksiz, bytes_remain);
 
@@ -148,7 +151,8 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
     }
 
-    auto* meta_block = new uint8_t[blocksiz]();
+    //auto* meta_block = new uint8_t[blocksiz]();
+    uint8_t meta_block[16] = {0};
     meta_block[0] = needPadding ? blocksiz - bytes_remain : 0;
     for (size_t i = 1; i < blocksiz; ++i) {
         //meta_block[i] = dist(gen);
@@ -266,7 +270,8 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             cipher->encrypt(iv, key, out);
 
             //uint64_t Ek = *(reinterpret_cast<uint64_t*>(out));
-            auto* Ek = new uint8_t[blocksiz]();
+            //auto* Ek = new uint8_t[blocksiz]();
+            uint8_t Ek[16] = {0};
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(Ek + part * 8)) = *(reinterpret_cast<uint64_t*>(out + part * 8));
             }
@@ -290,7 +295,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                     *(reinterpret_cast<uint64_t*>(out + (full_blocks + 1) * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + full_blocks * blocksiz + part * 8));
                 }
             }
-            delete[] Ek;
+            //delete[] Ek;
             break;
         }
         case Mode::CTR: {
@@ -317,7 +322,8 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             if (needPadding) {
                 // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
                 // iv_val += full_blocks + 1;
-                auto* iv_val = new uint8_t[blocksiz]();
+                //auto* iv_val = new uint8_t[blocksiz]();
+                uint8_t iv_val[16] = {0};
                 memcpy(iv_val, iv, blocksiz);
                 increment_counter(iv_val, blocksiz, full_blocks + 1);
 
@@ -325,7 +331,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 for (size_t part = 0; part < blocksiz / 8; ++part) {
                     *(reinterpret_cast<uint64_t*>(out + (full_blocks + 1) * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(last_block + part * 8));
                 }
-                delete[] iv_val;
+                //delete[] iv_val;
             }
             break;
         }
@@ -355,7 +361,8 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
                 // iv_val += (full_blocks + 1) * delta;
 
-                auto* iv_val = new uint8_t[blocksiz]();
+                //auto* iv_val = new uint8_t[blocksiz]();
+                uint8_t iv_val[16] = {0};
                 memcpy(iv_val, iv, blocksiz);
                 increment_counter(iv_val, blocksiz, (full_blocks + 1) * delta);
 
@@ -363,7 +370,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 for (size_t part = 0; part < blocksiz / 8; ++part) {
                     *(reinterpret_cast<uint64_t*>(out + (full_blocks + 1) * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(last_block + part * 8));
                 }
-                delete[] iv_val;
+                //delete[] iv_val;
             }
             break;
         }
@@ -372,14 +379,15 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
     }
-    delete[] last_block;
-    delete[] meta_block;
+    // delete[] last_block;
+    // delete[] meta_block;
     return out;
 }
 
 uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len) const {
     size_t total_blocks = len_bytes / blocksiz;
-    auto* meta_block = new uint8_t[blocksiz]();
+    //auto* meta_block = new uint8_t[blocksiz]();
+    uint8_t meta_block[16] = {0};
 
     switch (this->mode) {
         case Mode::ECB: {
@@ -401,12 +409,13 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 t.join();
             }
 
-            auto* last_block = new uint8_t[blocksiz]();
+            //auto* last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             cipher->decrypt(data + (total_blocks - 2) * blocksiz, key, last_block);
             memcpy(out + (total_blocks - 2) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
+            // delete[] meta_block;
+            // delete[] last_block;
             return out;
         }
 
@@ -432,7 +441,8 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 t.join();
             }
 
-            auto* last_block = new uint8_t[blocksiz]();
+            //auto* last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             cipher->decrypt(data + (total_blocks - 1) * blocksiz, key, last_block);
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(last_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 2) * blocksiz + part * 8));
@@ -440,8 +450,8 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
 
             memcpy(out + (total_blocks - 2) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
+            // delete[] meta_block;
+            // delete[] last_block;
             return out;
         }
 
@@ -463,14 +473,15 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 }
                 *(reinterpret_cast<uint64_t*>(out + i * blocksiz)) ^= *(reinterpret_cast<uint64_t*>(data + i * blocksiz));
             }
-            auto *last_block = new uint8_t[blocksiz]();
+            //auto *last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             cipher->decrypt(data + (total_blocks - 1) * blocksiz, key, last_block);
             *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(out + (total_blocks - 3) * blocksiz));
             *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 2) * blocksiz));
             memcpy(out + (total_blocks - 2) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
+            // delete[] meta_block;
+            // delete[] last_block;
             return out;
         }
 
@@ -494,15 +505,16 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 t.join();
             }
 
-            auto *last_block = new uint8_t[blocksiz]();
+            //auto *last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             cipher->encrypt(data + (total_blocks - 2) * blocksiz, key, last_block);
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(last_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz + part * 8));
             }
             memcpy(out + (total_blocks - 2) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
+            // delete[] meta_block;
+            // delete[] last_block;
             return out;
         }
 
@@ -511,7 +523,8 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             cipher->encrypt(iv, key, meta_block);
 
             //uint64_t Ek = *(reinterpret_cast<uint64_t*>(meta_block));
-            auto* Ek = new uint8_t[blocksiz]();
+            //auto* Ek = new uint8_t[blocksiz]();
+            uint8_t Ek[16] = {0};
             memcpy(Ek, meta_block, blocksiz);
 
             for (size_t part = 0; part < blocksiz / 8; ++part) {
@@ -532,16 +545,17 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 }
             }
 
-            auto* last_block = new uint8_t[blocksiz]();
+            //auto* last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             cipher->encrypt(Ek, key, last_block);
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(last_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz + part * 8));
             }
             memcpy(out + (total_blocks - 2) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
-            delete[] Ek;
+            // delete[] meta_block;
+            // delete[] last_block;
+            // delete[] Ek;
             return out;
         }
 
@@ -565,22 +579,24 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 t.join();
             }
 
-            auto *last_block = new uint8_t[blocksiz]();
+            //auto *last_block = new uint8_t[blocksiz]();
             // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
             // iv_val += total_blocks - 1;
-            auto* iv_val = new uint8_t[blocksiz]();
+            //uint8_t last_block[16] = {0};
+            //auto* iv_val = new uint8_t[blocksiz]();
+            uint8_t iv_val[16] = {0};
             memcpy(iv_val, iv, blocksiz);
             increment_counter(iv_val, blocksiz, total_blocks - 1);
 
-            cipher->encrypt(iv_val, key, last_block);
-            for (size_t part = 0; part < blocksiz / 8; ++part) {
-                *(reinterpret_cast<uint64_t*>(last_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz + part * 8));
-            }
-            memcpy(out + (total_blocks - 1) * blocksiz, last_block, blocksiz - invaluable_bytes);
+            // cipher->encrypt(iv_val, key, last_block);
+            // for (size_t part = 0; part < blocksiz / 8; ++part) {
+            //     *(reinterpret_cast<uint64_t*>(last_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz + part * 8));
+            // }
+            // memcpy(out + (total_blocks - 1) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
-            delete[] iv_val;
+            // delete[] meta_block;
+            // delete[] last_block;
+            // delete[] iv_val;
             return out;
         }
 
@@ -603,15 +619,16 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
                 t.join();
             }
 
-            auto *last_block = new uint8_t[blocksiz]();
+            //auto *last_block = new uint8_t[blocksiz]();
+            uint8_t last_block[16] = {0};
             uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
             iv_val += (total_blocks - 1) * delta;
             cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, last_block);
             *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz));
             memcpy(out + (total_blocks - 1) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
-            delete[] meta_block;
-            delete[] last_block;
+            // delete[] meta_block;
+            // delete[] last_block;
             return out;
         }
         default: {
