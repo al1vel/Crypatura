@@ -6,7 +6,7 @@
 #include "DEAL/DEAL.h"
 
 int main() {
-    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!\nSome text to check if DES works.\nIf you see this, I half won!!!2\n";
+    uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!!!2";
     uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
     uint8_t deal_key[16] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7};
 
@@ -16,7 +16,7 @@ int main() {
     DES* des_encryptor = new DES();
     DEAL* deal_encryptor = new DEAL(128);
 
-    CipherModule cipher_module(des_encryptor, 8, key, 64, Mode::RandomDelta, Padding::Zeros, iv, { 4 });
+    CipherModule cipher_module(des_encryptor, 8, key, 64, Mode::ECB, Padding::Zeros, iv, { 4 });
     CipherModule deal(deal_encryptor, 16, deal_key, 128, Mode::CTR, Padding::Zeros, deal_iv, { 4 });
 
     std::cout << "Text size: " << sizeof(text) << std::endl;
@@ -74,16 +74,16 @@ int main() {
     std::string decrypted_text("../tests/d.png");
 
     //
-    cipher_module.encrypt_file(img, encrypted_text);
-    cipher_module.decrypt_file(encrypted_text, decrypted_text, 8);
+    // cipher_module.encrypt_file(img, encrypted_text);
+    // cipher_module.decrypt_file(encrypted_text, decrypted_text, 8);
 
     // deal.encrypt_file(img, encrypted_text);
     // deal.decrypt_file(encrypted_text, decrypted_text, 16);
 
     delete des_encryptor;
     delete deal_encryptor;
-    delete[] cipher;
-    delete[] plain;
+    // delete[] cipher;
+    // delete[] plain;
 
     return 0;
 }
