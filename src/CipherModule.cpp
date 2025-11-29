@@ -620,12 +620,12 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             }
 
             //auto *last_block = new uint8_t[blocksiz]();
-            uint8_t last_block[16] = {0};
-            uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
-            iv_val += (total_blocks - 1) * delta;
-            cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, last_block);
-            *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz));
-            memcpy(out + (total_blocks - 1) * blocksiz, last_block, blocksiz - invaluable_bytes);
+            // uint8_t last_block[16] = {0};
+            // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
+            // iv_val += (total_blocks - 1) * delta;
+            // cipher->encrypt(reinterpret_cast<uint8_t*>(&iv_val), key, last_block);
+            // *(reinterpret_cast<uint64_t*>(last_block)) ^= *(reinterpret_cast<uint64_t*>(data + (total_blocks - 1) * blocksiz));
+            // memcpy(out + (total_blocks - 1) * blocksiz, last_block, blocksiz - invaluable_bytes);
 
             // delete[] meta_block;
             // delete[] last_block;

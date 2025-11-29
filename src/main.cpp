@@ -16,7 +16,7 @@ int main() {
     DES* des_encryptor = new DES();
     DEAL* deal_encryptor = new DEAL(128);
 
-    CipherModule cipher_module(des_encryptor, 8, key, 64, Mode::CTR, Padding::Zeros, iv, { 4 });
+    CipherModule cipher_module(des_encryptor, 8, key, 64, Mode::RandomDelta, Padding::Zeros, iv, { 4 });
     CipherModule deal(deal_encryptor, 16, deal_key, 128, Mode::CTR, Padding::Zeros, deal_iv, { 4 });
 
     std::cout << "Text size: " << sizeof(text) << std::endl;
