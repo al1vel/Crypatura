@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <iostream>
 
 #include "CipherModule.h"
 #include "DES/DES.h"
@@ -42,7 +41,6 @@ std::string name_pad(Padding pad) {
 }
 
 int main() {
-    //uint8_t text[] = "Some text to check if DES works.\nIf you see this, I half won!!!";
     uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
     uint8_t deal_key128[16] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7};
     uint8_t deal_key192[24] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7, 213, 32, 12, 32, 5, 7, 9, 9};
@@ -59,14 +57,8 @@ int main() {
     DEAL *deal192_encryptor = new DEAL(192);
     DEAL *deal256_encryptor = new DEAL(256);
 
-    // CipherModule des_module(des_encryptor, 8, key, 64, Mode::CFB, Padding::Zeros, iv, { 8 });
-    // CipherModule deal128_module(deal_encryptor, 16, deal_key128, 128, Mode::RandomDelta, Padding::Zeros, deal_iv, { 8 });
-    // CipherModule deal192_module(deal_encryptor, 16, deal_key192, 192, Mode::RandomDelta, Padding::Zeros, deal_iv, { 8 });
-    // CipherModule deal1256_module(deal_encryptor, 16, deal_key256, 256, Mode::RandomDelta, Padding::Zeros, deal_iv, { 8 });
-
     std::string img("../tests/simg.png");
     std::string encrypted_path("../tests/c.txt");
-    //std::string decrypted_path("../tests/d.png");
 
     constexpr Mode all_modes[] = {Mode::ECB, Mode::PCBC, Mode::CBC, Mode::CFB, Mode::OFB, Mode::CTR, Mode::RandomDelta};
     constexpr Padding all_pads[] = {Padding::Zeros, Padding::ANSI_X923, Padding::ISO10126, Padding::PKCS7};
