@@ -44,7 +44,7 @@ public:
 
     void Delta_thread_enc(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta) const;
 
-    void Delta_thread_dec(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta) const;
+    void Delta_thread_dec(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta, size_t copy_len) const;
 };
 
 

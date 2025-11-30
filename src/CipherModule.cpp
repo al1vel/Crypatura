@@ -83,23 +83,35 @@ void CipherModule::Delta_thread_enc(int index, int threads_cnt, int total_blocks
         for (size_t part = 0; part < blocksiz / 8; ++part) {
             *(reinterpret_cast<uint64_t*>(res + (i + 1) * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + i * blocksiz + part * 8));
         }
-        //delete[] iv_val;
     }
 }
 
-void CipherModule::Delta_thread_dec(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta) const {
+void CipherModule::Delta_thread_dec(int index, int threads_cnt, int total_blocks, uint8_t *data, uint8_t *res, int delta, size_t copy_len) const {
     for (int i = index; i < total_blocks; i += threads_cnt) {
         // uint64_t iv_val = *(reinterpret_cast<uint64_t*>(iv));
         // iv_val += (i + 1) * delta;
 
         //auto* iv_val = new uint8_t[blocksiz]();
-        uint8_t iv_val[16] = {0};
-        memcpy(iv_val, iv, blocksiz);
-        increment_counter(iv_val, blocksiz, (i + 1) * delta);
+        if (i == total_blocks - 1) {
+            uint8_t last[16] = {0};
+            uint8_t iv_val[16] = {0};
+            memcpy(iv_val, iv, blocksiz);
+            increment_counter(iv_val, blocksiz, (i + 1) * delta);
 
-        cipher->encrypt(iv_val, key, res + i * blocksiz);
-        for (size_t part = 0; part < blocksiz / 8; ++part) {
-            *(reinterpret_cast<uint64_t*>(res + i * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * blocksiz + part * 8));
+            cipher->encrypt(iv_val, key, last);
+            for (size_t part = 0; part < blocksiz / 8; ++part) {
+                *(reinterpret_cast<uint64_t*>(last + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * blocksiz + part * 8));
+            }
+            memcpy(res + i * blocksiz, last, copy_len);
+        } else {
+            uint8_t iv_val[16] = {0};
+            memcpy(iv_val, iv, blocksiz);
+            increment_counter(iv_val, blocksiz, (i + 1) * delta);
+
+            cipher->encrypt(iv_val, key, res + i * blocksiz);
+            for (size_t part = 0; part < blocksiz / 8; ++part) {
+                *(reinterpret_cast<uint64_t*>(res + i * blocksiz + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + (i + 1) * blocksiz + part * 8));
+            }
         }
         //delete[] iv_val;
     }
@@ -122,10 +134,6 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
     //auto* last_block = new uint8_t[blocksiz]();
     uint8_t last_block[16] = {0};
     if (needPadding) {
-        for (size_t k = 0; k < 8; ++k) {
-            printf("%c", *(data + full_blocks * blocksiz + k));
-        }
-        std::cout << std::endl;
         memcpy(last_block, data + full_blocks * blocksiz, bytes_remain);
 
         switch (this->padding) {
@@ -503,7 +511,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             int threads_cnt = getThreadsCount(4);
             std::vector<std::thread> threads;
             for (int i = 0; i < threads_cnt; ++i) {
-                threads.emplace_back(&CipherModule::CFB_thread, this, i, threads_cnt, total_blocks - 1, data + blocksiz, out);
+                threads.emplace_back(&CipherModule::CFB_thread, this, i, threads_cnt, total_blocks - 2, data + blocksiz, out);
             }
             for (auto &t: threads) {
                 t.join();
@@ -577,7 +585,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             int threads_cnt = getThreadsCount(4);
             std::vector<std::thread> threads;
             for (int i = 0; i < threads_cnt; ++i) {
-                threads.emplace_back(&CipherModule::Delta_thread_dec, this, i, threads_cnt, total_blocks - 2, data, out, 1);
+                threads.emplace_back(&CipherModule::Delta_thread_dec, this, i, threads_cnt, total_blocks - 1, data, out, 1, blocksiz - invaluable_bytes);
             }
             for (auto &t: threads) {
                 t.join();
@@ -617,7 +625,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             int threads_cnt = getThreadsCount(4);
             std::vector<std::thread> threads;
             for (int i = 0; i < threads_cnt; ++i) {
-                threads.emplace_back(&CipherModule::Delta_thread_dec, this, i, threads_cnt, total_blocks - 2, data, out, delta);
+                threads.emplace_back(&CipherModule::Delta_thread_dec, this, i, threads_cnt, total_blocks - 1, data, out, delta, blocksiz - invaluable_bytes);
             }
             for (auto &t: threads) {
                 t.join();
