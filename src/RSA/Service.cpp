@@ -28,36 +28,34 @@ ll Service::powmod(long long a, long long b, long long mod) {
 }
 
 ll Service::Jacobi_val(ll a, ll n) {
-    a = a % n;
-    if (a == 0) {
-        return 0;
-    }
-    if (a == 1) {
-        return 1;
-    }
-    if (a == -1) {
-        return -1;
+    if (n <= 0 || (n % 2) == 0) return 0;
+    if (n == 1) return 1;
+
+    a %= n;
+    if (a == 0) return 0;
+    if (a == 1) return 1;
+
+    ll result = 1;
+
+    if (a < 0) {
+        a = -a;
+        if (n % 4 == 3) result = -result;
     }
 
-    if (a % 2 == 0) {
-        ll two_k = a & (!a + 1);
-        ll k = two_k / 2;
-        ll sign = 1;
-        if (n % 8 == 3 || n % 8 == 5) {
-            if (k % 2 == 1) {
-                sign = -1;
-            }
-        }
-        a = (a / two_k) * sign;
+    // подсчёт t (количества делений на 2) без fancy-билтинов
+    int t = 0;
+    while ((a & 1) == 0) {
+        a >>= 1;
+        ++t;
     }
-    else {
-        ll sign = 1;
-        if (((a - 1) * (n - 1) / 4) % 2 == 1) {
-            sign = -1;
-        }
-        ll tmp_a = a;
-        a = (n % a) * sign;
-        n = tmp_a;
+    if (t > 0) {
+        if ((n % 8 == 3 || n % 8 == 5) && (t % 2 == 1))
+            result = -result;
     }
-    return Jacobi_val(a, n);
+
+    if (a % 4 == 3 && n % 4 == 3) result = -result;
+
+    if (a == 1) return result;
+    return result * Jacobi_val(n % a, a);
 }
+

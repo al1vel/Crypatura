@@ -5,7 +5,6 @@
 using ll = long long int;
 
 int main() {
-    Service s;
-    ll v = s.Jacobi_val(100, 383);
+    ll v = Service::Jacobi_val(5, 21);
     std::cout << v << std::endl;
 }

@@ -41,79 +41,79 @@ std::string name_pad(Padding pad) {
 }
 
 int main() {
-    uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
+    //uint8_t key[8] = {10, 23, 54, 3, 124, 43, 76, 255};
     uint8_t deal_key128[16] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7};
-    uint8_t deal_key192[24] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7, 213, 32, 12, 32, 5, 7, 9, 9};
-     uint8_t deal_key256[32] = {
-         10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7, 23, 23, 1, 3, 45, 75, 23, 123, 42, 0, 32, 1, 3, 42, 52,
-         52
-     };
+    // uint8_t deal_key192[24] = {10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7, 213, 32, 12, 32, 5, 7, 9, 9};
+    //  uint8_t deal_key256[32] = {
+    //      10, 23, 54, 3, 124, 43, 76, 255, 0, 1, 2, 3, 4, 5, 6, 7, 23, 23, 1, 3, 45, 75, 23, 123, 42, 0, 32, 1, 3, 42, 52,
+    //      52
+    //  };
 
-    uint8_t iv[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    //uint8_t iv[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     uint8_t deal_iv[16] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
 
-    DES *des_encryptor = new DES();
+   // DES *des_encryptor = new DES();
     DEAL *deal128_encryptor = new DEAL(128);
-    DEAL *deal192_encryptor = new DEAL(192);
-    DEAL *deal256_encryptor = new DEAL(256);
+    // DEAL *deal192_encryptor = new DEAL(192);
+    // DEAL *deal256_encryptor = new DEAL(256);
 
-    std::string img("../tests/simg.png");
+    std::string img("../tests/img2.png");
     std::string encrypted_path("../tests/c.txt");
 
     constexpr Mode all_modes[] = {Mode::ECB, Mode::PCBC, Mode::CBC, Mode::CFB, Mode::OFB, Mode::CTR, Mode::RandomDelta};
-    constexpr Padding all_pads[] = {Padding::Zeros, Padding::ANSI_X923, Padding::ISO10126, Padding::PKCS7};
+    //constexpr Padding all_pads[] = {Padding::Zeros, Padding::ANSI_X923, Padding::ISO10126, Padding::PKCS7};
+
+    // for (Mode mode: all_modes) {
+    //     for (Padding pad: all_pads) {
+    //         std::string decrypted_path("../tests/done/DES-");
+    //         decrypted_path += name_mode(mode);
+    //         decrypted_path += name_pad(pad);
+    //         decrypted_path += ".png";
+    //
+    //         CipherModule des_module(des_encryptor, 8, key, 64, mode, pad, iv, { 4 });
+    //         des_module.encrypt_file(img, encrypted_path);
+    //         des_module.decrypt_file(encrypted_path, decrypted_path, 8);
+    //     }
+    // }
 
     for (Mode mode: all_modes) {
-        for (Padding pad: all_pads) {
-            std::string decrypted_path("../tests/done/DES-");
-            decrypted_path += name_mode(mode);
-            decrypted_path += name_pad(pad);
-            decrypted_path += ".png";
-
-            CipherModule des_module(des_encryptor, 8, key, 64, mode, pad, iv, { 8 });
-            des_module.encrypt_file(img, encrypted_path);
-            des_module.decrypt_file(encrypted_path, decrypted_path, 8);
-        }
-    }
-
-    for (Mode mode: all_modes) {
-        for (Padding pad: all_pads) {
+        //for (Padding pad: all_pads) {
             std::string decrypted_path("../tests/done/DEAL128-");
             decrypted_path += name_mode(mode);
-            decrypted_path += name_pad(pad);
+
             decrypted_path += ".png";
 
-            CipherModule deal128_module(deal128_encryptor, 16, deal_key128, 128, mode, pad, deal_iv, { 8 });
+            CipherModule deal128_module(deal128_encryptor, 16, deal_key128, 128, mode, Padding::PKCS7, deal_iv, { 4 });
             deal128_module.encrypt_file(img, encrypted_path);
             deal128_module.decrypt_file(encrypted_path, decrypted_path, 16);
-        }
+        //}
     }
 
-    for (Mode mode: all_modes) {
-        for (Padding pad: all_pads) {
-            std::string decrypted_path("../tests/done/DEAL192-");
-            decrypted_path += name_mode(mode);
-            decrypted_path += name_pad(pad);
-            decrypted_path += ".png";
-
-            CipherModule deal128_module(deal192_encryptor, 16, deal_key192, 192, mode, pad, deal_iv, { 8 });
-            deal128_module.encrypt_file(img, encrypted_path);
-            deal128_module.decrypt_file(encrypted_path, decrypted_path, 16);
-        }
-    }
-
-    for (Mode mode: all_modes) {
-        for (Padding pad: all_pads) {
-            std::string decrypted_path("../tests/done/DEAL256-");
-            decrypted_path += name_mode(mode);
-            decrypted_path += name_pad(pad);
-            decrypted_path += ".png";
-
-            CipherModule deal128_module(deal256_encryptor, 16, deal_key256, 256, mode, pad, deal_iv, { 8 });
-            deal128_module.encrypt_file(img, encrypted_path);
-            deal128_module.decrypt_file(encrypted_path, decrypted_path, 16);
-        }
-    }
+    // for (Mode mode: all_modes) {
+    //     for (Padding pad: all_pads) {
+    //         std::string decrypted_path("../tests/done/DEAL192-");
+    //         decrypted_path += name_mode(mode);
+    //         decrypted_path += name_pad(pad);
+    //         decrypted_path += ".png";
+    //
+    //         CipherModule deal128_module(deal192_encryptor, 16, deal_key192, 192, mode, pad, deal_iv, { 4 });
+    //         deal128_module.encrypt_file(img, encrypted_path);
+    //         deal128_module.decrypt_file(encrypted_path, decrypted_path, 16);
+    //     }
+    // }
+    //
+    // for (Mode mode: all_modes) {
+    //     for (Padding pad: all_pads) {
+    //         std::string decrypted_path("../tests/done/DEAL256-");
+    //         decrypted_path += name_mode(mode);
+    //         decrypted_path += name_pad(pad);
+    //         decrypted_path += ".png";
+    //
+    //         CipherModule deal128_module(deal256_encryptor, 16, deal_key256, 256, mode, pad, deal_iv, { 4 });
+    //         deal128_module.encrypt_file(img, encrypted_path);
+    //         deal128_module.decrypt_file(encrypted_path, decrypted_path, 16);
+    //     }
+    // }
 
     // std::cout << "Text size: " << sizeof(text) << std::endl;
     // size_t enc_out_len = 0;
