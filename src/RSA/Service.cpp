@@ -1,5 +1,8 @@
 #include "../../include/RSA/Service.h"
 
+#include <cstdint>
+#include <utility>
+
 ll Service::Legengre_val(ll a, ll p) {
     ll t = Service::powmod(a, (p - 1) / 2, p);
     if (t == 0) {
@@ -59,3 +62,25 @@ ll Service::Jacobi_val(ll a, ll n) {
     return result * Jacobi_val(n % a, a);
 }
 
+ll Service::gcd(ll a, ll b) {
+    while (a) {
+        if (a <= b) {
+            b = b % a;
+        }
+        std::swap(a ,b);
+    }
+    return b;
+}
+
+ll Service::egcd(ll a, ll b, ll &x, ll &y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    ll x1, y1;
+    ll g = egcd(b % a, a, x1, y1);
+    x = y1 - (b % a) * x1;
+    y = x1;
+    return g;
+}
