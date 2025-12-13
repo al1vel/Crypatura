@@ -1,6 +1,7 @@
 #include "big_int.h"
+#include <random>
 
-#include <complex>
+//#include <complex>
 
 std::size_t num_length(uint64_t num) {
     std::size_t length = 0;
@@ -31,6 +32,9 @@ BigInt::BigInt(long long value) {
         isNegative = true;
         value = -value;
     }
+    if (value == 0) {
+        digits.push_back(0);
+    }
     while (value != 0) {
         digits.push_back(value % BASE);
         value /= BASE;
@@ -39,7 +43,7 @@ BigInt::BigInt(long long value) {
 
 BigInt::BigInt(const std::string &str) {
     std::string temp = str;
-    if (temp.length() == 0) {
+    if (temp.empty()) {
         BigInt();
     } else {
         isNegative = false;
@@ -50,7 +54,7 @@ BigInt::BigInt(const std::string &str) {
         if (!std::all_of(temp.begin(), temp.end(), ::isdigit)) {
             throw std::invalid_argument("invalid number");
         }
-        for (long long i = temp.length(); i > 0; i -= 9) {
+        for (auto i = static_cast<long long>(temp.length()); i > 0; i -= 9) {
             if (i < 9) {
                 digits.push_back(atoi(temp.substr(0, i).c_str()));
             } else {
@@ -81,7 +85,7 @@ std::ostream &operator<<(std::ostream &os, const BigInt &num) {
         if (num.isNegative) {
             os << "-";
         }
-        for (long long i = num.digits.size() - 1; i >= 0; i--) {
+        for (long long i = static_cast<long long>(num.digits.size()) - 1; i >= 0; i--) {
             if (num.digits[i] == 0) {
                 os << "000000000";
             } else {
@@ -154,7 +158,7 @@ bool BigInt::operator<(const BigInt &other) const {
         return true;
     }
     bool findLess = false;
-    int n = digits.size();
+    int n = static_cast<int>(digits.size());
     for (int i = n - 1; i >= 0; --i) {
         if (!isNegative) {
             if (digits[i] > other.digits[i]) {
@@ -449,124 +453,199 @@ BigInt BigInt::karatsuba_multiply(const BigInt &other) const {
     return result;
 }
 
-void BigInt::fft(std::vector<std::complex<long double>>& a, bool invert) {
-    auto size = a.size();
-    if (size == 1)  return;
+bool BigInt::isOdd() const {
+    return !digits.empty() && (digits[0] & 1LLU);
+}
 
-    std::vector<std::complex<long double>> a0(size / 2);
-    std::vector<std::complex<long double>> a1(size / 2);
-    for (unsigned i = 0, j = 0; i < size; i += 2, j++) {
-        a0[j] = a[i];
-        a1[j] = a[i + 1];
-    }
+bool BigInt::isEven() const {
+    return !digits.empty() && !(digits[0] & 1LLU);
+}
 
-    fft(a0, invert);
-    fft(a1, invert);
+BigInt BigInt::randomBigIntBelow(const BigInt& limit) {
+    if (limit.is_zero()) return BigInt(0);
 
-    long double ang = 2 * ((long double)(M_PI)) / size * (invert ? -1 : 1);
-    std::complex<long double> w(1.0);
-    std::complex<long double> wn(cosl(ang), sinl(ang));
-    for (unsigned int i = 0; i < size / 2; ++i) {
-        a[i] = a0[i] + w * a1[i];
-        a[i + size / 2] = a0[i] - w * a1[i];
-        if (invert) {
-            a[i] /= 2;
-            a[i + size / 2] /= 2;
+    BigInt result;
+    result.digits.resize(limit.digits.size());
+
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+
+    bool alreadyLess = false;
+
+    for (long long i = limit.digits.size() - 1; i >= 0; --i) {
+        uint64_t maxBlock = alreadyLess ? (BASE - 1) : (limit.digits[i] - 1);
+
+        if (!alreadyLess && limit.digits[i] == 0) {
+            maxBlock = 0;
         }
-        w *= wn;
-    }
-}
 
-std::string BigInt::to_string() const {
-    std::stringstream ss;
-    ss << *this;
-    return ss.str();
-}
+        std::uniform_int_distribution<uint64_t> d(0, maxBlock);
+        uint64_t x = d(gen);
 
-std::vector<uint64_t> BigInt::small_base_number(std::string& str) const {
-    std::string temp = str;
-    std::vector<uint64_t> res;
-    if (temp.length() == 0) {
-        res.push_back(0);
-        return res;
-    }
+        result.digits[i] = x;
 
-    for (long long i = temp.length(); i > 0; i -= 4) {
-        if (i < 4) {
-            res.push_back(atoi(temp.substr(0, i).c_str()));
-        } else {
-            res.push_back(atoi(temp.substr(i - 4, 4).c_str()));
+        if (!alreadyLess && x < limit.digits[i]) {
+            alreadyLess = true;
         }
     }
-    return res;
+
+    result.remove_leading_zeros();
+    return result;
 }
 
-std::string BigInt::small_number_to_string(std::vector<uint64_t> &num) {
-    std::string res;
-    if (num.empty() || (num.back() == 0 && num.size() == 1)) {
-        res += "0";
-    } else {
-        for (long long i = num.size() - 1; i >= 0; i--) {
-            if (num[i] == 0) {
-                res += "0000";
-            } else {
-                if (i != static_cast<long long>(num.size()) - 1) {
-                    std::size_t len = num_length(num[i]);
-                    if (len < 4) {
-                        std::string s(4 - len, '0');
-                        res += s;
-                    }
-                }
-                res += std::to_string(num[i]);
-            }
-        }
+void BigInt::random(const BigInt& left, const BigInt& right) {
+    if (left > right) {
+        throw std::invalid_argument("BigInt::random: left > right");
     }
-    return res;
+
+    BigInt diff = right - left;
+    BigInt rnd  = randomBigIntBelow(diff + BigInt(1));
+
+    *this = left + rnd;
 }
 
-
-BigInt BigInt::fft_multiply2(const BigInt& second) {
-    std::string first_str = this->to_string();
-    std::string second_str = second.to_string();
-
-    std::vector<uint64_t> first_num = small_base_number(first_str);
-    std::vector<uint64_t> second_num = small_base_number(second_str);
-    std::vector<uint64_t> small_res;
-
-    std::vector<std::complex<long double>> fa(first_num.begin(), first_num.end());
-    std::vector<std::complex<long double>> fb(second_num.begin(), second_num.end());
-
-    uint size = 1;
-    while (size < std::max(first_num.size(), second_num.size())) {
-        size <<= 1;
-    }
-    size <<= 1;
-    fa.resize(size);
-    fb.resize(size);
-
-    fft(fa, false);
-    fft(fb, false);
-
-    for (uint i = 0; i < size; ++i) {
-        fa[i] *= fb[i];
+BigInt BigInt::random_odd_with_len(size_t bit_len) {
+    if (bit_len == 0) {
+        return BigInt(0);
     }
 
-    fft(fa, true);
+    size_t digits_cnt = bit_len / 32;
 
-    uint64_t carry = 0;
-    for (size_t i = 0; i < size; ++i) {
-        int64_t value = static_cast<int64_t>(std::round(fa[i].real())) + carry;
-        small_res.push_back(value % SMALL_BASE);
-        carry = value / SMALL_BASE;
+    BigInt result;
+    result.digits.resize(digits_cnt, 0);
+
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+
+    for (size_t i = 0; i < digits_cnt; ++i) {
+        std::uniform_int_distribution<uint64_t> d(0, BASE - 1);
+        result.digits[i] = d(gen);
     }
 
-    if (carry > 0) {
-        small_res.push_back(carry);
+    if (result % BigInt(2) == BigInt(0)) {
+        ++result;
     }
-
-    std::string small_res_str = small_number_to_string(small_res);
-    BigInt res(small_res_str);
-    res.remove_leading_zeros();
-    res.isNegative = isNegative ^ second.isNegative;
-    return res;
+    return result;
 }
+
+// void BigInt::fft(std::vector<std::complex<long double>>& a, bool invert) {
+//     auto size = a.size();
+//     if (size == 1)  return;
+//
+//     std::vector<std::complex<long double>> a0(size / 2);
+//     std::vector<std::complex<long double>> a1(size / 2);
+//     for (unsigned i = 0, j = 0; i < size; i += 2, j++) {
+//         a0[j] = a[i];
+//         a1[j] = a[i + 1];
+//     }
+//
+//     fft(a0, invert);
+//     fft(a1, invert);
+//
+//     long double ang = 2 * ((long double)(M_PI)) / size * (invert ? -1 : 1);
+//     std::complex<long double> w(1.0);
+//     std::complex<long double> wn(cosl(ang), sinl(ang));
+//     for (unsigned int i = 0; i < size / 2; ++i) {
+//         a[i] = a0[i] + w * a1[i];
+//         a[i + size / 2] = a0[i] - w * a1[i];
+//         if (invert) {
+//             a[i] /= 2;
+//             a[i + size / 2] /= 2;
+//         }
+//         w *= wn;
+//     }
+// }
+//
+// std::string BigInt::to_string() const {
+//     std::stringstream ss;
+//     ss << *this;
+//     return ss.str();
+// }
+
+// std::vector<uint64_t> BigInt::small_base_number(std::string& str) const {
+//     std::string temp = str;
+//     std::vector<uint64_t> res;
+//     if (temp.length() == 0) {
+//         res.push_back(0);
+//         return res;
+//     }
+//
+//     for (long long i = temp.length(); i > 0; i -= 4) {
+//         if (i < 4) {
+//             res.push_back(atoi(temp.substr(0, i).c_str()));
+//         } else {
+//             res.push_back(atoi(temp.substr(i - 4, 4).c_str()));
+//         }
+//     }
+//     return res;
+// }
+//
+// std::string BigInt::small_number_to_string(std::vector<uint64_t> &num) {
+//     std::string res;
+//     if (num.empty() || (num.back() == 0 && num.size() == 1)) {
+//         res += "0";
+//     } else {
+//         for (long long i = num.size() - 1; i >= 0; i--) {
+//             if (num[i] == 0) {
+//                 res += "0000";
+//             } else {
+//                 if (i != static_cast<long long>(num.size()) - 1) {
+//                     std::size_t len = num_length(num[i]);
+//                     if (len < 4) {
+//                         std::string s(4 - len, '0');
+//                         res += s;
+//                     }
+//                 }
+//                 res += std::to_string(num[i]);
+//             }
+//         }
+//     }
+//     return res;
+// }
+
+
+// BigInt BigInt::fft_multiply2(const BigInt& second) {
+//     std::string first_str = this->to_string();
+//     std::string second_str = second.to_string();
+//
+//     std::vector<uint64_t> first_num = small_base_number(first_str);
+//     std::vector<uint64_t> second_num = small_base_number(second_str);
+//     std::vector<uint64_t> small_res;
+//
+//     std::vector<std::complex<long double>> fa(first_num.begin(), first_num.end());
+//     std::vector<std::complex<long double>> fb(second_num.begin(), second_num.end());
+//
+//     uint size = 1;
+//     while (size < std::max(first_num.size(), second_num.size())) {
+//         size <<= 1;
+//     }
+//     size <<= 1;
+//     fa.resize(size);
+//     fb.resize(size);
+//
+//     fft(fa, false);
+//     fft(fb, false);
+//
+//     for (uint i = 0; i < size; ++i) {
+//         fa[i] *= fb[i];
+//     }
+//
+//     fft(fa, true);
+//
+//     uint64_t carry = 0;
+//     for (size_t i = 0; i < size; ++i) {
+//         int64_t value = static_cast<int64_t>(std::round(fa[i].real())) + carry;
+//         small_res.push_back(value % SMALL_BASE);
+//         carry = value / SMALL_BASE;
+//     }
+//
+//     if (carry > 0) {
+//         small_res.push_back(carry);
+//     }
+//
+//     std::string small_res_str = small_number_to_string(small_res);
+//     BigInt res(small_res_str);
+//     res.remove_leading_zeros();
+//     res.isNegative = isNegative ^ second.isNegative;
+//     return res;
+// }

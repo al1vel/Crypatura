@@ -1,7 +1,7 @@
 #ifndef CRYPATURA_IPRIMALITYTEST_H
 #define CRYPATURA_IPRIMALITYTEST_H
 
-using
+#include "../big_int.h"
 
 class IPrimalityTest {
     public:

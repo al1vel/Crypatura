@@ -1,15 +1,23 @@
 #ifndef CRYPATURA_SERVICE_H
 #define CRYPATURA_SERVICE_H
 
-using ll = long long int;
+#include "../big_int.h"
 
 class Service {
-    public:
-    static ll Legengre_val(ll a, ll p);
-    static ll Jacobi_val(ll a, ll n);
-    static ll gcd(ll a, ll b);
-    static ll egcd(ll a, ll b, ll &x, ll &y);
-    static ll powmod(ll a, ll b, ll mod);
+public:
+    static BigInt Legengre_val(const BigInt& a, const BigInt& p);
+
+    static BigInt Jacobi_val(BigInt a, const BigInt& n);
+
+    static BigInt gcd(BigInt a, BigInt b);
+
+    static BigInt egcd(const BigInt& a, BigInt b, BigInt &x, BigInt &y);
+
+    static BigInt powmod(const BigInt& a, BigInt b, const BigInt& mod);
+
+    static BigInt pow(const BigInt& a, BigInt b);
+
+    static BigInt root4(const BigInt& N);
 };
 
 

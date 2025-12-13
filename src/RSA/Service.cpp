@@ -1,69 +1,87 @@
 #include "../../include/RSA/Service.h"
 
-#include <cstdint>
 #include <utility>
 
-ll Service::Legengre_val(ll a, ll p) {
-    ll t = Service::powmod(a, (p - 1) / 2, p);
-    if (t == 0) {
-        return 0;
-    }
-    if (t == 1) {
-        return 1;
-    }
-    if (t == p - 1) {
-        return -1;
-    }
-    return -2;
-}
+BigInt Service::powmod(const BigInt& a, BigInt b, const BigInt& mod) {
+    BigInt base = a % mod;
+    BigInt result = BigInt(1);
 
-ll Service::powmod(long long a, long long b, long long mod) {
-    a %= mod;
-    long long result = 1;
-    while (b > 0) {
-        if (b & 1) {
-            result = (result * a) % mod;
+    while (b > BigInt(0)) {
+        if (b.isOdd()) {
+            result = (result * base) % mod;
         }
-        a = (a * a) % mod;
-        b >>= 1;
+        base = (base * base) % mod;
+        b /= BigInt(2);
     }
+
     return result;
 }
 
-ll Service::Jacobi_val(ll a, ll n) {
-    if (n <= 0 || (n % 2) == 0) return 0;
-    if (n == 1) return 1;
+BigInt Service::pow(const BigInt& a, BigInt b) {
+    BigInt base = a;
+    BigInt result = BigInt(1);
 
-    a %= n;
-    if (a == 0) return 0;
-    if (a == 1) return 1;
+    while (b > BigInt(0)) {
+        if (b.isOdd()) {
+            result *= base;
+        }
+        base *= base;
+        b /= BigInt(2);
+    }
+    return result;
+}
+BigInt Service::Legengre_val(const BigInt& a, const BigInt& p) {
+    BigInt t = powmod(a, (p - BigInt(1)) / BigInt(2), p);
+    if (t == BigInt(0)) {
+        return BigInt(0);
+    }
+    if (t == BigInt(1)) {
+        return BigInt(1);
+    }
+    if (t == BigInt(p - BigInt(1))) {
+        return BigInt(-1);
+    }
+    return BigInt(-2);
+}
 
-    ll result = 1;
+BigInt Service::Jacobi_val(BigInt a, const BigInt& n) {
+    if (n <= BigInt(0) || (n % BigInt(2)) == BigInt(0)) return BigInt(0);
+    if (n == BigInt(1)) return BigInt(1);
 
-    if (a < 0) {
-        a = -a;
-        if (n % 4 == 3) result = -result;
+    a = a % n;
+    if (a == BigInt(0)) return BigInt(0);
+    if (a == BigInt(1)) return BigInt(1);
+
+    BigInt result = BigInt(1);
+
+    if (a < BigInt(0)) {
+        a = a * BigInt(-1);
+        if (n % BigInt(4) == BigInt(3)) {
+            result *= BigInt(-1);
+        }
     }
 
-    // подсчёт t (количества делений на 2) без fancy-билтинов
-    int t = 0;
-    while ((a & 1) == 0) {
-        a >>= 1;
+    BigInt t = BigInt(0);
+    while (a.isEven()) {
+        a /= BigInt(2);
         ++t;
     }
-    if (t > 0) {
-        if ((n % 8 == 3 || n % 8 == 5) && (t % 2 == 1))
-            result = -result;
+    if (t > BigInt(0)) {
+        if ((n % BigInt(8) == BigInt(3) || n % BigInt(8) == BigInt(5)) && (t % BigInt(2) == BigInt(1))) {
+            result *= BigInt(-1);
+        }
     }
 
-    if (a % 4 == 3 && n % 4 == 3) result = -result;
+    if (a % BigInt(4) == BigInt(3) && n % BigInt(4) == BigInt(3)) {
+        result *= BigInt(-1);
+    }
 
-    if (a == 1) return result;
+    if (a == BigInt(1)) return result;
     return result * Jacobi_val(n % a, a);
 }
 
-ll Service::gcd(ll a, ll b) {
-    while (a) {
+BigInt Service::gcd(BigInt a, BigInt b) {
+    while (a > BigInt(0)) {
         if (a <= b) {
             b = b % a;
         }
@@ -72,15 +90,41 @@ ll Service::gcd(ll a, ll b) {
     return b;
 }
 
-ll Service::egcd(ll a, ll b, ll &x, ll &y) {
-    if (a == 0) {
-        x = 0;
-        y = 1;
+BigInt Service::egcd(const BigInt& a, BigInt b, BigInt &x, BigInt &y) {
+    if (a == BigInt(0)) {
+        x = BigInt(0);
+        y = BigInt(1);
         return b;
     }
-    ll x1, y1;
-    ll g = egcd(b % a, a, x1, y1);
+    BigInt x1, y1;
+    BigInt g = egcd(b % a, a, x1, y1);
     x = y1 - (b % a) * x1;
     y = x1;
     return g;
+}
+
+BigInt Service::root4(const BigInt &N) {
+    if (N < BigInt(0)) throw std::runtime_error("корень четвёртой степени из отрицательного числа");
+    if (N == BigInt(0) || N == BigInt(1)) return N;
+
+    BigInt left(0);
+    BigInt right = N;
+    BigInt result;
+
+    while (left <= right) {
+        BigInt mid = (left + right) / BigInt(2);
+        BigInt mid4 = pow(mid, BigInt(4));
+
+        if (mid4 == N) {
+            return mid;
+        }
+
+        if (mid4 < N) {
+            result = mid;
+            left = mid + BigInt(1);
+        } else {
+            right = mid - BigInt(1);
+        }
+    }
+    return result;
 }

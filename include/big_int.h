@@ -29,11 +29,18 @@ public:
     BigInt abs() const;
     void remove_leading_zeros();
     bool is_zero() const;
+    bool isOdd() const;
+    bool isEven() const;
     BigInt operator%(const BigInt &other) const;
-    void fft(std::vector<std::complex<long double>>& a, bool invert);
-    std::string to_string() const;
-    std::string small_number_to_string(std::vector<uint64_t>& num);
-    std::vector<uint64_t> small_base_number(std::string& str) const;
+
+    static BigInt randomBigIntBelow(const BigInt& limit);
+    void random(const BigInt& left, const BigInt& right);
+    static BigInt random_odd_with_len(size_t bit_len);
+
+    //void fft(std::vector<std::complex<long double>>& a, bool invert);
+    //std::string to_string() const;
+    //std::string small_number_to_string(std::vector<uint64_t>& num);
+    //std::vector<uint64_t> small_base_number(std::string& str) const;
 
     BigInt &operator=(const BigInt &other);
     BigInt &operator=(BigInt &&other) noexcept;
@@ -56,10 +63,10 @@ public:
     bool operator>=(const BigInt &other) const;
 
     [[nodiscard]] BigInt mod_exp(const BigInt &exp, const BigInt &mod) const;
-    [[nodiscard]] BigInt fft_multiply(const BigInt &a);
-    [[nodiscard]] BigInt fft_multiply2(const BigInt &a);
+    //[[nodiscard]] BigInt fft_multiply(const BigInt &a);
+    //[[nodiscard]] BigInt fft_multiply2(const BigInt &a);
     [[nodiscard]] BigInt karatsuba_multiply(const BigInt &a) const;
-    [[nodiscard]] BigInt newton_divide(const BigInt &a) const;
+    //[[nodiscard]] BigInt newton_divide(const BigInt &a) const;
 
     friend std::istream &operator>>(std::istream &is, BigInt &num);
     friend std::ostream &operator<<(std::ostream &os, const BigInt &num);
