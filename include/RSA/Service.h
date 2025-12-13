@@ -17,7 +17,7 @@ public:
 
     static BigInt pow(const BigInt& a, BigInt b);
 
-    static BigInt root4(const BigInt& N);
+    static BigInt root4(size_t bit_len);
 };
 
 

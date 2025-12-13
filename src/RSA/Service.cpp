@@ -38,7 +38,7 @@ BigInt Service::Legengre_val(const BigInt& a, const BigInt& p) {
     if (t == BigInt(1)) {
         return BigInt(1);
     }
-    if (t == BigInt(p - BigInt(1))) {
+    if (t == p - BigInt(1)) {
         return BigInt(-1);
     }
     return BigInt(-2);
@@ -98,33 +98,17 @@ BigInt Service::egcd(const BigInt& a, BigInt b, BigInt &x, BigInt &y) {
     }
     BigInt x1, y1;
     BigInt g = egcd(b % a, a, x1, y1);
-    x = y1 - (b % a) * x1;
+    x = y1 - (b / a) * x1;
     y = x1;
     return g;
 }
 
-BigInt Service::root4(const BigInt &N) {
-    if (N < BigInt(0)) throw std::runtime_error("корень четвёртой степени из отрицательного числа");
-    if (N == BigInt(0) || N == BigInt(1)) return N;
+BigInt Service::root4(size_t bit_len) {
+    size_t root_bits = bit_len / 4;
 
-    BigInt left(0);
-    BigInt right = N;
-    BigInt result;
+    BigInt result(1);
+    BigInt two(2);
 
-    while (left <= right) {
-        BigInt mid = (left + right) / BigInt(2);
-        BigInt mid4 = pow(mid, BigInt(4));
-
-        if (mid4 == N) {
-            return mid;
-        }
-
-        if (mid4 < N) {
-            result = mid;
-            left = mid + BigInt(1);
-        } else {
-            right = mid - BigInt(1);
-        }
-    }
+    result = Service::pow(two, BigInt(static_cast<long long>(root_bits)));
     return result;
 }

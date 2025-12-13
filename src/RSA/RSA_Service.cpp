@@ -1,10 +1,29 @@
 #include "../../include/RSA/RSA_Service.h"
+#include "RSA/RSA_Service.h"
+#include "RSA/RSA_Service.h"
+
 #include "../../include/Interfaces/IPrimalityTest.h"
 #include "../../include/RSA/PrimeTest.h"
 #include "../../include/RSA/FermatTest.h"
 #include "../../include/RSA/SolStrTest.h"
 #include "../../include/RSA/MilRabTest.h"
 #include "../../include/RSA/Service.h"
+
+std::string name_test(RSA_Service::KeyGenerator::PrimalityTest test) {
+    switch (test) {
+        case RSA_Service::KeyGenerator::PrimalityTest::Fermat: {
+            return "Fermat";
+        }
+        case RSA_Service::KeyGenerator::PrimalityTest::MillerRabin: {
+            return "MillerRabin";
+        }
+        case RSA_Service::KeyGenerator::PrimalityTest::SoloveyStrassen: {
+            return "SoloveyStrassen";
+        }
+        default:
+            return "";
+    }
+}
 
 RSA_Service::KeyGenerator::KeyGenerator(RSA_Service &parent, PrimalityTest p_test, double p_min,
                                         size_t bit_len) : service_(parent) {
@@ -14,6 +33,7 @@ RSA_Service::KeyGenerator::KeyGenerator(RSA_Service &parent, PrimalityTest p_tes
 }
 
 void RSA_Service::KeyGenerator::generate_keys() const {
+    std::cout << "Generating keys..." << std::endl;
     PrimeTest *test = nullptr;
     switch (this->p_test) {
         case PrimalityTest::Fermat: {
@@ -35,24 +55,26 @@ void RSA_Service::KeyGenerator::generate_keys() const {
     if (test == nullptr) {
         return;
     }
+    std::cout << "Test " + name_test(this->p_test) + " created." << std::endl;
 
     while (true) {
         BigInt p, q;
         while (true) {
-            p = BigInt::random_odd_with_len(bit_len);
-            while (!test->isPrime(p, this->p_min)) {
-                p += BigInt(2);
-            }
+            do {
+                p = BigInt::random_odd_with_len(bit_len);
+                std::cout << "p: " << p << std::endl;
+            } while (!test->isPrime(p, p_min));
 
-            q = BigInt::random_odd_with_len(bit_len);
-            while (!test->isPrime(q, this->p_min)) {
-                q += BigInt(2);
-            }
+            do {
+                q = BigInt::random_odd_with_len(bit_len);
+                std::cout << "q: " << q << std::endl;
+            } while (!test->isPrime(q, p_min));
 
             BigInt diff = (p - q).abs();
-            if (diff >= Service::pow(BigInt(2), BigInt(static_cast<long long>(bit_len) / 2))) {
+            if (diff >= Service::pow(BigInt(2), BigInt(static_cast<long long>(bit_len) / 2) - BigInt(10))) {
                 break;
             }
+            std::cout << "P & Q generated. Fermat attack denied.\nP: " << p << "\nQ: " << q << std::endl;
         }
 
         BigInt N = p * q;
@@ -60,9 +82,13 @@ void RSA_Service::KeyGenerator::generate_keys() const {
         BigInt e = BigInt(65537);
 
         BigInt d, y;
-        Service::egcd(e, phi, d, y);
+        BigInt gcd = Service::egcd(e, phi, d, y);
+        if (gcd != BigInt(1)) {
+            continue;
+        }
+        std::cout << "GCD: " << gcd << "\nd: " << d << std::endl;
 
-        if (d > (Service::root4(N) / BigInt(3))) {
+        if (d > (Service::root4(bit_len) / BigInt(3))) {
             service_.private_key = PrivateKey(N, d);
             service_.public_key = PublicKey(N, e);
             break;
