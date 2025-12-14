@@ -57,7 +57,7 @@ public:
     bool operator<=(const BigInt &other) const;
     bool operator>=(const BigInt &other) const;
 
-    [[nodiscard]] BigInt mod_exp(const BigInt &exp, const BigInt &mod) const;
+    //[[nodiscard]] BigInt mod_exp(const BigInt &exp, const BigInt &mod) const;
     [[nodiscard]] BigInt karatsuba_multiply(const BigInt &a) const;
 
     friend std::istream &operator>>(std::istream &is, BigInt &num);

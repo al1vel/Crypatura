@@ -349,70 +349,6 @@ BigInt BigInt::operator/(const BigInt &other) const {
     return result;
 }
 
-// BigInt BigInt::operator/(const BigInt& other) const {
-//     if (other.is_zero())
-//         throw std::runtime_error("Division by zero");
-//
-//     BigInt a = abs();
-//     BigInt b = other.abs();
-//
-//     if (a < b) return BigInt(0);
-//     if (a == b) return BigInt(1);
-//
-//     size_t n = a.digits.size();
-//     size_t m = b.digits.size();
-//
-//     BigInt q;
-//     q.digits.assign(n - m + 1, 0);
-//
-//     // --- нормализация ---
-//     uint64_t d = BASE / (b.digits.back() + 1);
-//     a.mul_uint(d);
-//     b.mul_uint(d);
-//     a.digits.push_back(0); // чтобы был u[n]
-//
-//     // --- основной цикл ---
-//     for (int i = n - m; i >= 0; --i) {
-//         __uint128_t num =
-//             (__uint128_t)a.digits[i + m] * BASE +
-//              a.digits[i + m - 1];
-//
-//         uint64_t qhat = num / b.digits[m - 1];
-//         if (qhat >= BASE) qhat = BASE - 1;
-//
-//         // коррекция
-//         while (true) {
-//             __uint128_t left =
-//                 (__uint128_t)b.digits[m - 2] * qhat;
-//             __uint128_t right =
-//                 (__uint128_t)(num - (__uint128_t)qhat * b.digits[m - 1]) * BASE
-//                 + a.digits[i + m - 2];
-//
-//             if (left <= right) break;
-//             --qhat;
-//         }
-//
-//         // вычитание
-//         if (a.sub_shifted(b, qhat, i)) {
-//             --qhat;
-//             // вернуть b << i
-//             __uint128_t carry = 0;
-//             for (size_t j = 0; j < b.digits.size(); ++j) {
-//                 __uint128_t cur =
-//                     a.digits[i + j] + b.digits[j] + carry;
-//                 a.digits[i + j] = cur % BASE;
-//                 carry = cur / BASE;
-//             }
-//         }
-//
-//         q.digits[i] = qhat;
-//     }
-//
-//     q.remove_leading_zeros();
-//     q.isNegative = (isNegative != other.isNegative);
-//     return q;
-// }
-
 BigInt& BigInt::operator++() {
     *this = *this + BigInt(1);
     return *this;
@@ -457,20 +393,20 @@ BigInt BigInt::operator%(const BigInt &other) const {
     return result;
 }
 
-BigInt BigInt::mod_exp(const BigInt &exp, const BigInt &mod) const {
-    if (exp < BigInt(2)) {
-        if (exp == BigInt(1)) {
-            return *this % mod;
-        }
-        return BigInt(1);
-    }
-    BigInt result = mod_exp(exp / BigInt(2), mod);
-    result = (result * result) % mod;
-    if (exp.digits[0] % 2 == 1) {
-        result = (result * *this) % mod;
-    }
-    return result;
-}
+// BigInt BigInt::mod_exp(const BigInt &exp, const BigInt &mod) const {
+//     if (exp < BigInt(2)) {
+//         if (exp == BigInt(1)) {
+//             return *this % mod;
+//         }
+//         return BigInt(1);
+//     }
+//     BigInt result = mod_exp(exp / BigInt(2), mod);
+//     result = (result * result) % mod;
+//     if (exp.digits[0] % 2 == 1) {
+//         result = (result * *this) % mod;
+//     }
+//     return result;
+// }
 
 BigInt BigInt::karatsuba_multiply(const BigInt &other) const {
     BigInt x = *this;
