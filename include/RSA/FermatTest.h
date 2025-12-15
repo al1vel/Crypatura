@@ -2,6 +2,7 @@
 #define CRYPATURA_FERMATTEST_H
 
 #include "PrimeTest.h"
+#include <gmpxx.h>
 
 class FermatTest : public PrimeTest {
 protected:

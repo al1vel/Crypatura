@@ -5,7 +5,7 @@
 uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order) {
     size_t byte_index;
     size_t bit_index;
-    if (byte_order == ByteOrder::BIG_ENDIAN) {
+    if (byte_order == ByteOrder::BO_BIG_ENDIAN) {
         byte_index = pos / 8;
         bit_index = 7 - (pos % 8);
     } else {
@@ -19,7 +19,7 @@ uint8_t get_bit(const uint8_t *arr, const size_t pos, const size_t len, ByteOrde
 void set_bit_true(uint8_t *arr, const size_t pos, const size_t len, ByteOrder byte_order) {
     size_t byte_index;
     size_t bit_index;
-    if (byte_order == ByteOrder::BIG_ENDIAN) {
+    if (byte_order == ByteOrder::BO_BIG_ENDIAN) {
         byte_index = pos / 8;
         bit_index = 7 - (pos % 8);
     } else {

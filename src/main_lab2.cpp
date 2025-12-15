@@ -8,6 +8,8 @@
 
 #include "../include/RSA/RSA_Service.h"
 
+#include <gmpxx.h>
+
 int main() {
     // BigInt v = Service::Jacobi_val(BigInt(5), BigInt(21));
     // std::cout << v << std::endl;
@@ -17,14 +19,27 @@ int main() {
     // bool b = t.isPrime(a, 0.999);
     // std::cout << b << std::endl;
 
-    RSA_Service rsa(RSA_Service::KeyGenerator::PrimalityTest::Fermat, 0.9, 256);
-    std::cout << "RSA created" << std::endl;
-    rsa.generate_rsa_keys();
-    std::cout << "Keys created" << std::endl;
+    // RSA_Service rsa(RSA_Service::KeyGenerator::PrimalityTest::Fermat, 0.9, 256);
+    // std::cout << "RSA created" << std::endl;
+    // rsa.generate_rsa_keys();
+    // std::cout << "Keys created" << std::endl;
+    //
+    // BigInt m("123456789123456789123456789");
+    // BigInt c = rsa.encrypt(m);
+    // std::cout << "Encrypted message: " << c << std::endl;
+    // BigInt d = rsa.decrypt(c);
+    // std::cout << d << std::endl;
 
-    BigInt m("123456789123456789123456789");
-    BigInt c = rsa.encrypt(m);
-    std::cout << "Encrypted message: " << c << std::endl;
-    BigInt d = rsa.decrypt(c);
-    std::cout << d << std::endl;
+    // Просто как int, только большой!
+    mpz_class a("1234567890123456789012345678900000");
+    mpz_class b = 42;
+
+    // Естественный синтаксис
+    auto result1 = a + b;
+    auto result2 = a * b;
+    auto result3 = a / b;
+
+    std::cout << "a + b = " << result1 << std::endl;
+    std::cout << "a * b = " << result2 << std::endl;
+    std::cout << "a / b = " << result3 << std::endl;
 }

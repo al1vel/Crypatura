@@ -1,6 +1,7 @@
 #ifndef CRYPATURA_IKEYEXTENSION_H
 #define CRYPATURA_IKEYEXTENSION_H
 #include <cstdint>
+#include <cstddef>
 
 class IKeyExtension {
 public:

@@ -1,6 +1,6 @@
 #include "../include/FestelNet.h"
 #include <iostream>
-#include <bits/fs_fwd.h>
+#include <cstring>
 
 FestelNet::FestelNet(IRoundFunction *round_F, IKeyExtension *key_extenser) {
     this->round_F = round_F;

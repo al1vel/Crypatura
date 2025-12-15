@@ -4,7 +4,7 @@
 #include <random>
 #include <thread>
 #include <fstream>
-
+#include <cstring>
 inline void increment_counter(uint8_t* block, size_t block_size, uint64_t value) {
     auto* low  = reinterpret_cast<uint64_t *>(block + block_size - 8);
     uint64_t old_low = *low;
