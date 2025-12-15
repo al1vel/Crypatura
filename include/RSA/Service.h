@@ -1,23 +1,29 @@
 #ifndef CRYPATURA_SERVICE_H
 #define CRYPATURA_SERVICE_H
 
-#include "../big_int.h"
+#include <gmpxx.h>
 
 class Service {
 public:
-    static BigInt Legengre_val(const BigInt& a, const BigInt& p);
+    static mpz_class Legengre_val(const mpz_class& a, const mpz_class& p);
 
-    static BigInt Jacobi_val(BigInt a, const BigInt& n);
+    static mpz_class Jacobi_val(mpz_class a, const mpz_class& n);
 
-    static BigInt gcd(BigInt a, BigInt b);
+    static mpz_class gcd(mpz_class a, mpz_class b);
 
-    static BigInt egcd(const BigInt& a, BigInt b, BigInt &x, BigInt &y);
+    static mpz_class egcd(const mpz_class& a, mpz_class b, mpz_class &x, mpz_class &y);
 
-    static BigInt powmod(const BigInt& a, BigInt b, const BigInt& mod);
+    static mpz_class powmod(const mpz_class& a, mpz_class b, const mpz_class& mod);
 
-    static BigInt pow(const BigInt& a, BigInt b);
+    static mpz_class pow(const mpz_class& a, mpz_class b);
 
-    static BigInt root4(size_t bit_len);
+    static mpz_class root4(size_t bit_len);
+
+    static bool is_odd(const mpz_class& a);
+
+    static mpz_class random_in_range(const mpz_class& min, const mpz_class& max);
+
+    static mpz_class random_with_len(size_t bit_len);
 };
 
 

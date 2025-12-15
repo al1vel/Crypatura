@@ -1,11 +1,12 @@
 #include "../../include/RSA/RSA_Service.h"
-
 #include "../../include/Interfaces/IPrimalityTest.h"
 #include "../../include/RSA/PrimeTest.h"
 #include "../../include/RSA/FermatTest.h"
 #include "../../include/RSA/SolStrTest.h"
 #include "../../include/RSA/MilRabTest.h"
 #include "../../include/RSA/Service.h"
+
+#include <iostream>
 
 std::string name_test(RSA_Service::KeyGenerator::PrimalityTest test) {
     switch (test) {
@@ -56,41 +57,48 @@ void RSA_Service::KeyGenerator::generate_keys() const {
     std::cout << "Test " + name_test(this->p_test) + " created." << std::endl;
 
     while (true) {
-        BigInt p, q;
+        mpz_class p, q;
         while (true) {
             do {
-                p = BigInt::random_odd_with_len(bit_len);
-                std::cout << "p: " << p << std::endl;
+                p = Service::random_with_len(bit_len);
+                //std::cout << "p: " << p << std::endl;
             } while (!test->isPrime(p, p_min));
+            std::cout << "P generated." << std::endl;
 
             do {
-                q = BigInt::random_odd_with_len(bit_len);
-                std::cout << "q: " << q << std::endl;
+                q = Service::random_with_len(bit_len);
+                //std::cout << "q: " << q << std::endl;
             } while (!test->isPrime(q, p_min));
+            std::cout << "Q generated." << std::endl;
 
-            BigInt diff = (p - q).abs();
-            if (diff >= Service::pow(BigInt(2), BigInt(static_cast<long long>(bit_len) / 2) - BigInt(10))) {
+            mpz_class diff = (p - q);
+            if (diff < 0) diff = -diff;
+            if (diff >= Service::pow(2, bit_len / 2 - 10)) {
+                std::cout << "P & Q generated. Fermat attack denied.\nP: " << p << "\nQ: " << q << std::endl;
                 break;
             }
-            std::cout << "P & Q generated. Fermat attack denied.\nP: " << p << "\nQ: " << q << std::endl;
+            std::cout << "P & Q can be affected by Fermat attack. Trying again..." << std::endl;
         }
 
-        BigInt N = p * q;
-        BigInt phi = (p - BigInt(1)) * (q - BigInt(1));
-        BigInt e = BigInt(65537);
+        mpz_class N = p * q;
+        mpz_class phi = (p - 1) * (q - 1);
+        mpz_class e = 65537;
 
-        BigInt d, y;
-        BigInt gcd = Service::egcd(e, phi, d, y);
-        if (gcd != BigInt(1)) {
+        mpz_class d, y;
+        mpz_class gcd = Service::egcd(e, phi, d, y);
+        if (gcd != 1) {
+            std::cout << "GCD of e and phi is not 1. Trying again..." << std::endl;
             continue;
         }
-        std::cout << "GCD: " << gcd << "\nd: " << d << std::endl;
+        std::cout << "GCD: " << gcd << "\nGood!" << std::endl;
 
-        if (d > (Service::root4(bit_len) / BigInt(3))) {
+        if (d > (Service::root4(bit_len) / 3)) {
             service_.private_key = PrivateKey(N, d);
             service_.public_key = PublicKey(N, e);
+            std::cout << "d is ok - keys generated." << std::endl;
             break;
         }
+        std::cout << "d can be affected by Viener. Trying again..." << std::endl;
     }
 
     delete test;
@@ -105,12 +113,12 @@ RSA_Service::RSA_Service(KeyGenerator::PrimalityTest test, double min_prime_prob
                          size_t bit_length) : keys_generator(*this, test, min_prime_probability, bit_length) {
 }
 
-BigInt RSA_Service::encrypt(const BigInt &m) const {
-    BigInt c = Service::powmod(m, public_key.e, public_key.n);
+mpz_class RSA_Service::encrypt(const mpz_class &m) const {
+    mpz_class c = Service::powmod(m, public_key.e, public_key.n);
     return c;
 }
 
-BigInt RSA_Service::decrypt(const BigInt &c) const {
-    BigInt d = Service::powmod(c, private_key.d, private_key.n);
+mpz_class RSA_Service::decrypt(const mpz_class &c) const {
+    mpz_class d = Service::powmod(c, private_key.d, private_key.n);
     return d;
 }

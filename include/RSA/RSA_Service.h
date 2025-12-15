@@ -1,18 +1,18 @@
 #ifndef CRYPATURA_RSA_SERVICE_H
 #define CRYPATURA_RSA_SERVICE_H
 
-#include "../../include/big_int.h"
+#include <gmpxx.h>
 
 class RSA_Service {
 public:
     struct PublicKey {
-        BigInt n;
-        BigInt e;
+        mpz_class n;
+        mpz_class e;
     };
 
     struct PrivateKey {
-        BigInt n;
-        BigInt d;
+        mpz_class n;
+        mpz_class d;
     };
 
     class KeyGenerator {
@@ -38,9 +38,9 @@ public:
 
     void generate_rsa_keys() const;
 
-    BigInt encrypt(const BigInt &message) const;
+    mpz_class encrypt(const mpz_class &message) const;
 
-    BigInt decrypt(const BigInt &cipher) const;
+    mpz_class decrypt(const mpz_class &cipher) const;
 
 private:
     PublicKey public_key;

@@ -5,7 +5,7 @@
 
 class MilRabTest: public PrimeTest {
     double one_iter_fail_probability() const override;
-    bool test_iteration(const BigInt &n) override;
+    bool test_iteration(const mpz_class &n) override;
 };
 
 

@@ -1,4 +1,5 @@
 #include "../../include/RSA/PrimeTest.h"
+#include <cmath>
 
 int PrimeTest::calculate_iter_cnt(double p_min) const {
     double p_error = 1 - p_min;
@@ -6,7 +7,7 @@ int PrimeTest::calculate_iter_cnt(double p_min) const {
     return std::ceil(std::log(p_error) / std::log(base));
 }
 
-bool PrimeTest::isPrime(const BigInt &n, double p_min) {
+bool PrimeTest::isPrime(const mpz_class &n, double p_min) {
     int iter_cnt = this->calculate_iter_cnt(p_min);
     //std::cout << "Iters: " << iter_cnt << std::endl;
 
