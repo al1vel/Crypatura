@@ -111,14 +111,20 @@ mpz_class Service::egcd(const mpz_class& a, mpz_class b, mpz_class &x, mpz_class
     return g;
 }
 
-mpz_class Service::root4(size_t bit_len) {
-    size_t root_bits = bit_len / 4;
+mpz_class Service::root4(mpz_class n) {
+    // size_t root_bits = bit_len / 4;
+    //
+    // mpz_class result(1);
+    // mpz_class two(2);
+    //
+    // result = Service::pow(two, root_bits);
+    // return result;
 
-    mpz_class result(1);
-    mpz_class two(2);
-
-    result = Service::pow(two, root_bits);
-    return result;
+    mpz_class sqrt_n;
+    mpz_sqrt(sqrt_n.get_mpz_t(), n.get_mpz_t());
+    mpz_class fourth_root;
+    mpz_sqrt(fourth_root.get_mpz_t(), sqrt_n.get_mpz_t());
+    return fourth_root;
 }
 
 mpz_class Service::random_in_range(const mpz_class &min, const mpz_class &max) {

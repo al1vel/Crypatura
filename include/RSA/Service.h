@@ -17,7 +17,7 @@ public:
 
     static mpz_class pow(const mpz_class& a, mpz_class b);
 
-    static mpz_class root4(size_t bit_len);
+    static mpz_class root4(mpz_class n);
 
     static bool is_odd(const mpz_class& a);
 

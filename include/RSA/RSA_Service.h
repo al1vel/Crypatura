@@ -27,6 +27,8 @@ public:
 
         void generate_keys() const;
 
+        void generate_weak_keys() const;
+
     private:
         RSA_Service &service_;
         PrimalityTest p_test;
@@ -37,6 +39,8 @@ public:
     RSA_Service(KeyGenerator::PrimalityTest test, double min_prime_probability, size_t bit_length);
 
     void generate_rsa_keys() const;
+
+    void generate_weak_rsa_keys() const;
 
     mpz_class encrypt(const mpz_class &message) const;
 
