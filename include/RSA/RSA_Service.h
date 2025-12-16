@@ -15,6 +15,8 @@ public:
         mpz_class d;
     };
 
+    PublicKey public_key;
+
     class KeyGenerator {
     public:
         enum class PrimalityTest {
@@ -47,7 +49,6 @@ public:
     mpz_class decrypt(const mpz_class &cipher) const;
 
 private:
-    PublicKey public_key;
     PrivateKey private_key;
     KeyGenerator keys_generator;
 };
