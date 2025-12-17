@@ -81,10 +81,12 @@ target_link_libraries(crypto_core PRIVATE
 # Основной исполняемый файл
 add_executable(lab1 ${CMAKE_SOURCE_DIR}/src/main_lab1.cpp)
 add_executable(lab2 ${CMAKE_SOURCE_DIR}/src/main_lab2.cpp)
+add_executable(lab3 ${CMAKE_SOURCE_DIR}/src/main_lab3.cpp)
 
 # Линкуем с нашей библиотекой
 target_link_libraries(lab1 PRIVATE crypto_core)
 target_link_libraries(lab2 PRIVATE crypto_core)
+target_link_libraries(lab3 PRIVATE crypto_core)
 
 # Дополнительно: включаем предупреждения
 if (MSVC)
