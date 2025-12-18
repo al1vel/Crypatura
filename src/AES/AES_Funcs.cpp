@@ -8,7 +8,7 @@ void AES_Funcs::sub_bytes(uint8_t *state, size_t byte_len, const uint8_t* S_box)
 }
 
 void AES_Funcs::shift_rows(uint8_t* state, size_t byte_len, bool inverted) {
-    const int Nb = static_cast<int>(byte_len / 4); // 4/6/8
+    const int Nb = static_cast<int>(byte_len / 4);
     uint8_t tmp[32] = {0};
 
     for (int i = 0; i < static_cast<int>(byte_len); ++i) tmp[i] = state[i];
