@@ -7,6 +7,10 @@
 #include "../../include/RSA/Service.h"
 
 #include <iostream>
+#include <cstdint>
+#include <vector>
+#include <fstream>
+#include <iomanip>
 
 std::string name_test(RSA_Service::KeyGenerator::PrimalityTest test) {
     switch (test) {
@@ -195,4 +199,151 @@ mpz_class RSA_Service::encrypt(const mpz_class &m) const {
 mpz_class RSA_Service::decrypt(const mpz_class &c) const {
     mpz_class d = Service::powmod(c, private_key.d, private_key.n);
     return d;
+}
+
+void print_progress(double progress) { // progress: 0..1
+    const int barWidth = 30;
+    int pos = static_cast<int>(barWidth * progress);
+
+    std::cout << '\r' << '[';
+    for (int i = 0; i < barWidth; ++i) {
+        std::cout << (i < pos ? '#' : ' ');
+    }
+    std::cout << "] " << std::setw(3) << static_cast<int>(progress * 100.0) << '%' << std::flush;
+}
+
+#pragma pack(push, 1)
+struct RsaFileHeader {
+    char magic[4];        // "RSA1"
+    uint32_t k;           // cipher block size in bytes
+    uint64_t original_size;
+};
+#pragma pack(pop)
+
+static mpz_class bytes_to_mpz(const uint8_t* data, size_t len) {
+    mpz_class x;
+    mpz_import(x.get_mpz_t(), len, 1, 1, 0, 0, data); // big-endian
+    return x;
+}
+
+static void mpz_to_fixed_bytes(const mpz_class& x, uint8_t* out, size_t k) {
+    std::memset(out, 0, k);
+    size_t count = 0;
+    // export big-endian
+    mpz_export(out, &count, 1, 1, 0, 0, x.get_mpz_t());
+    // mpz_export writes starting at out[0], but count may be < k.
+    // Shift right to fixed size.
+    if (count > k) throw std::runtime_error("mpz_to_fixed_bytes: doesn't fit");
+    if (count < k) {
+        // shift to the end: [0..k-count) zeros already; move bytes to end
+        std::memmove(out + (k - count), out, count);
+        std::memset(out, 0, k - count);
+    }
+}
+
+static size_t modulus_bytes(const mpz_class& n) {
+    return (mpz_sizeinbase(n.get_mpz_t(), 2) + 7) / 8;
+}
+
+void RSA_Service::rsa_encrypt_file( const std::string &in_path, const std::string &out_path) const {
+    std::ifstream in(in_path, std::ios::binary);
+    if (!in) throw std::runtime_error("can't open input");
+
+    std::ofstream out(out_path, std::ios::binary);
+    if (!out) throw std::runtime_error("can't open output");
+
+    const mpz_class n = this->public_key.n;
+    const size_t k = modulus_bytes(n);
+    const size_t p = (k > 1) ? (k - 1) : 0;
+    if (p == 0) throw std::runtime_error("invalid modulus size");
+
+    // get original size
+    in.seekg(0, std::ios::end);
+    uint64_t original_size = static_cast<uint64_t>(in.tellg());
+    in.seekg(0, std::ios::beg);
+
+    RsaFileHeader hdr{};
+    std::memcpy(hdr.magic, "RSA1", 4);
+    hdr.k = static_cast<uint32_t>(k);
+    hdr.original_size = original_size;
+    out.write(reinterpret_cast<const char*>(&hdr), sizeof(hdr));
+
+    std::vector<uint8_t> plain(p);
+    std::vector<uint8_t> cipher(k);
+
+    size_t total_size = original_size;
+    size_t cur = 0;
+    std::cout << "RSA encrypts file of total " << total_size << " bytes" << std::endl;
+
+    while (in) {
+        in.read(reinterpret_cast<char*>(plain.data()), static_cast<std::streamsize>(p));
+        std::streamsize got = in.gcount();
+        if (got <= 0) break;
+
+        // last block
+        if (static_cast<size_t>(got) < p) {
+            std::memset(plain.data() + got, 0, p - static_cast<size_t>(got));
+        }
+
+        mpz_class m = bytes_to_mpz(plain.data(), p);
+        if (m >= n) throw std::runtime_error("plaintext block >= n (unexpected)");
+
+        mpz_class c = this->encrypt(m);
+        mpz_to_fixed_bytes(c, cipher.data(), k);
+
+        out.write(reinterpret_cast<const char*>(cipher.data()), static_cast<std::streamsize>(k));
+
+        cur += got;
+        print_progress(static_cast<double>(cur) / static_cast<double>(total_size));
+    }
+    std::cout << std::endl;
+}
+
+void RSA_Service::rsa_decrypt_file(const std::string &in_path, const std::string &out_path) const {
+    std::ifstream in(in_path, std::ios::binary);
+    if (!in) throw std::runtime_error("can't open input");
+
+    RsaFileHeader hdr{};
+    in.read(reinterpret_cast<char*>(&hdr), sizeof(hdr));
+    if (in.gcount() != sizeof(hdr) || std::memcmp(hdr.magic, "RSA1", 4) != 0) {
+        throw std::runtime_error("bad RSA file header");
+    }
+
+    const size_t k = hdr.k;
+    const size_t p = (k > 1) ? (k - 1) : 0;
+    if (p == 0) throw std::runtime_error("invalid k");
+
+    std::ofstream out(out_path, std::ios::binary);
+    if (!out) throw std::runtime_error("can't open output");
+
+    std::vector<uint8_t> cipher(k);
+    std::vector<uint8_t> plain(p);
+
+    uint64_t remaining = hdr.original_size;
+
+    size_t total_size = remaining;
+    size_t cur = 0;
+    std::cout << "RSA encrypts file of total " << total_size << " bytes" << std::endl;
+
+    while (remaining > 0) {
+        in.read(reinterpret_cast<char*>(cipher.data()), static_cast<std::streamsize>(k));
+        if (in.gcount() != static_cast<std::streamsize>(k)) {
+            throw std::runtime_error("truncated ciphertext");
+        }
+
+        mpz_class c = bytes_to_mpz(cipher.data(), k);
+        mpz_class m = this->decrypt(c);
+
+        std::vector<uint8_t> tmp(k);
+        mpz_to_fixed_bytes(m, tmp.data(), k);
+        std::memcpy(plain.data(), tmp.data() + (k - p), p);
+
+        const size_t to_write = (remaining >= p) ? p : static_cast<size_t>(remaining);
+        out.write(reinterpret_cast<const char*>(plain.data()), static_cast<std::streamsize>(to_write));
+        remaining -= to_write;
+
+        cur += to_write;
+        print_progress(static_cast<double>(cur) / static_cast<double>(total_size));
+    }
+    std::cout << std::endl;
 }

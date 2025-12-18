@@ -48,6 +48,10 @@ public:
 
     mpz_class decrypt(const mpz_class &cipher) const;
 
+    void rsa_encrypt_file(const std::string& in_path, const std::string& out_path) const;
+
+    void rsa_decrypt_file(const std::string& in_path, const std::string& out_path) const;
+
 private:
     PrivateKey private_key;
     KeyGenerator keys_generator;
