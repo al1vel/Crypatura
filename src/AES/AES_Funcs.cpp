@@ -7,44 +7,25 @@ void AES_Funcs::sub_bytes(uint8_t *state, size_t byte_len, const uint8_t* S_box)
     }
 }
 
-void AES_Funcs::shift_rows(uint8_t *state, size_t byte_len, bool inverted) {
-    auto* temp = new uint8_t[byte_len]();
-    for (int p_index = 0; p_index < static_cast<int>(byte_len); ++p_index) {
-        int pos = 0;
-        if (byte_len == 16) {
-            pos = perm16[p_index];
-        } else if (byte_len == 24) {
-            pos = perm24[p_index];
-        } else if (byte_len == 32) {
-            pos = perm32[p_index];
-        }
-        temp[p_index] = state[pos];
-    }
+void AES_Funcs::shift_rows(uint8_t* state, size_t byte_len, bool inverted) {
+    const int Nb = static_cast<int>(byte_len / 4); // 4/6/8
+    uint8_t tmp[32] = {0};
 
-    for (int i = 1; i <= 3; ++i) {
-        auto* str_ptr = reinterpret_cast<uint64_t*>(temp + i * (byte_len / 4));
-        int shift = i * 8;
+    for (int i = 0; i < static_cast<int>(byte_len); ++i) tmp[i] = state[i];
 
-        size_t row_bits = (byte_len / 4) * 8;
-        if (inverted) {
-            *str_ptr = (*str_ptr >> shift) | (*str_ptr << (row_bits - shift));
-        } else {
-            *str_ptr = (*str_ptr << shift) | (*str_ptr >> (row_bits - shift));
+    for (int r = 1; r < 4; ++r) {
+        const int shift = r % Nb;
+        for (int c = 0; c < Nb; ++c) {
+            int src_c;
+            if (!inverted) {
+                src_c = (c + shift) % Nb;
+            } else {
+                src_c = (c - shift + Nb) % Nb;
+            }
+            state[r * Nb + c] = tmp[r * Nb + src_c];
         }
     }
-
-    for (int p_index = 0; p_index < static_cast<int>(byte_len); ++p_index) {
-        int pos = 0;
-        if (byte_len == 16) {
-            pos = perm16[p_index];
-        } else if (byte_len == 24) {
-            pos = perm24[p_index];
-        } else if (byte_len == 32) {
-            pos = perm32[p_index];
-        }
-        state[p_index] = temp[pos];
-    }
-    delete [] temp;
+    for (int c = 0; c < Nb; ++c) state[c] = tmp[c];
 }
 
 void matr_mult_col(const uint8_t* matr, const uint8_t* col, uint8_t* res_col) {

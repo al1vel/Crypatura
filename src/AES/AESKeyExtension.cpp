@@ -39,9 +39,9 @@ void AESKeyExtension::key_extension(uint8_t *key, size_t init_key_len, uint8_t *
             bytes[2] = S_box[bytes[2]];
             bytes[3] = S_box[bytes[3]];
             temp = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
-            temp ^= rcon[(i / Nb) - 1];
+            temp ^= rcon[(i / Nk) - 1];
         }
-        else if (Nk > 6 && i % Nb == 4) {
+        else if (Nk > 6 && i % Nk == 4) {
             // SubWord для AES-256
             uint8_t bytes[4] = {(uint8_t)((temp >> 24) & 0xFF), (uint8_t)((temp >> 16) & 0xFF), (uint8_t)((temp >> 8) & 0xFF), (uint8_t)(temp & 0xFF)};
             bytes[0] = S_box[bytes[0]];
@@ -50,6 +50,6 @@ void AESKeyExtension::key_extension(uint8_t *key, size_t init_key_len, uint8_t *
             bytes[3] = S_box[bytes[3]];
             temp = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
         }
-        w[i] = w[i - Nb] ^ temp;
+        w[i] = w[i - Nk] ^ temp;
     }
 }

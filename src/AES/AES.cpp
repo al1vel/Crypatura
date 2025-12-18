@@ -39,9 +39,8 @@ AES::AES(size_t block_len, size_t key_len, uint8_t* init_key_ptr) : key_len(key_
         S_box_inv[S_box[i]] = i;
     }
 
-    int rounds_cnt = key_len == 16 ? 10 : (key_len == 192 ? 12 : 14);
-    ++rounds_cnt;
-    size_t exp_key_size = rounds_cnt * block_len;
+    int rounds_cnt = key_len == 16 ? 10 : (key_len == 24 ? 12 : 14);
+    size_t exp_key_size = (rounds_cnt + 1) * block_len;
     exp_key = new uint8_t[exp_key_size]();
 
     AESKeyExtension key_extenser(block_len, reinterpret_cast<uint8_t*>(&S_box));
@@ -59,7 +58,7 @@ void AES::encrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
 
     AES_Funcs::add_round_key(state, block_len, key);
 
-    int rounds_cnt = key_len == 16 ? 10 : (key_len == 192 ? 12 : 14);
+    int rounds_cnt = key_len == 16 ? 10 : (key_len == 24 ? 12 : 14);
     for (int i = 0; i < rounds_cnt; ++i) {
         AES_Funcs::sub_bytes(state, block_len, reinterpret_cast<uint8_t*>(&S_box));
         AES_Funcs::shift_rows(state, block_len, false);
@@ -76,7 +75,7 @@ void AES::decrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
     uint8_t state[32] = { 0 };
     memcpy(state, block, block_len);
 
-    int rounds_cnt = key_len == 16 ? 10 : (key_len == 192 ? 12 : 14);
+    int rounds_cnt = key_len == 16 ? 10 : (key_len == 24 ? 12 : 14);
 
     AES_Funcs::add_round_key(state, block_len, key + rounds_cnt * block_len);
 
