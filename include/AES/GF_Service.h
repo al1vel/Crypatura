@@ -8,7 +8,7 @@ class GF_Service {
 public:
     static uint8_t add(uint8_t a, uint8_t b);
 
-    static uint8_t mult_mod(uint8_t a, uint8_t b, uint8_t mod = 0x1B);
+    static uint8_t mult_mod(uint8_t a, uint8_t b, uint16_t mod);
 
     static int degree(uint32_t n);
 
@@ -22,7 +22,7 @@ public:
 
     static uint16_t mul(uint16_t a, uint16_t b);
 
-    static uint8_t inverse_mod(uint8_t a, uint8_t mod);
+    static uint8_t inverse_mod(uint16_t a, uint16_t mod);
 
     static std::vector<uint16_t> get_primes();
 

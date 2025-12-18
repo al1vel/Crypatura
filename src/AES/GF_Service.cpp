@@ -7,21 +7,21 @@ uint8_t GF_Service::add(uint8_t a, uint8_t b) {
     return a ^ b;
 }
 
-uint8_t GF_Service::mult_mod(uint8_t a, uint8_t b, uint8_t mod) {
-    uint8_t res = 0;
+uint8_t GF_Service::mult_mod(uint8_t a, uint8_t b, uint16_t mod) {
+    uint16_t res = 0, temp_a = a, temp_b = b;
 
     for (int i = 0; i < 8; ++i) {
-        if (b & 1) {
-            res ^= a;
+        if (temp_b & 1) {
+            res ^= temp_a;
         }
-        bool carry = a & 0x80;
-        a <<= 1;
+        bool carry = temp_a & 0x80;
+        temp_a <<= 1;
         if (carry) {
-            a ^= mod;
+            temp_a ^= mod;
         }
-        b >>= 1;
+        temp_b >>= 1;
     }
-    return res;
+    return static_cast<uint8_t>(res);
 }
 
 int GF_Service::degree(uint32_t n) {
@@ -94,8 +94,8 @@ uint16_t GF_Service::mul(uint16_t a, uint16_t b) {
     return res;
 }
 
-uint8_t GF_Service::inverse_mod(uint8_t a, uint8_t mod) {
-    if (a == 0) throw std::runtime_error("zero has no inverse");
+uint8_t GF_Service::inverse_mod(uint16_t a, uint16_t mod) {
+    if (a == 0) return 0;
 
     uint16_t r0 = mod;
     uint16_t r1 = a;
@@ -140,7 +140,7 @@ GF_Service::DivResult GF_Service::divide(uint32_t a, uint32_t b) {
         q |= (1u << shift);
         a ^= b << shift;
     }
-    return { q, a };
+    return {q, a};
 }
 
 std::vector<uint32_t> GF_Service::decompose_to_primes(uint32_t f) {
@@ -149,19 +149,17 @@ std::vector<uint32_t> GF_Service::decompose_to_primes(uint32_t f) {
     if (f == 0 || f == 1) return factors;
 
     for (uint32_t d = 2; d <= f; ++d) {
-        if (!is_prime(d)) {
-            continue;
-        }
+        if (!is_prime(d)) continue;
 
         while (true) {
             auto [q, r] = divide(f, d);
             if (r != 0) break;
+            //std::cout << "divide by " << std::hex << d << ", q = " << q << std::endl;
+
             factors.push_back(d);
             f = q;
         }
-        if (f == 1) break;
     }
-
     if (f != 1) {
         factors.push_back(f);
     }

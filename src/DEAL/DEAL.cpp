@@ -1,5 +1,4 @@
 #include "../../include/DEAL/DEAL.h"
-#include <cstring>
 #include "../../include/DEAL/DEALKeyExtension.h"
 #include "../../include/DEAL/DEALRoundFunction.h"
 
