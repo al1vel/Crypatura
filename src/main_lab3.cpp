@@ -65,8 +65,8 @@ int main() {
     uint8_t key256[32] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
 
     //uint8_t iv128[16] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
-    //uint8_t iv192[24] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
-    uint8_t iv256[32] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+    uint8_t iv192[24] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+    //uint8_t iv256[32] = {1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8};
 
     std::string img("../tests/img2.png");
     std::string encrypted_path("../tests/c.txt");
@@ -78,9 +78,9 @@ int main() {
         decrypted_path += name_mode(mode);
         decrypted_path += ".png";
 
-        AES *aes = new AES(32, 32, key256);
+        AES *aes = new AES(32, 24, key256);
 
-        CipherModule aes_module(aes, 32, aes->exp_key, 32, mode, Padding::PKCS7, iv256, { 4 });
+        CipherModule aes_module(aes, 32, aes->exp_key, 24, mode, Padding::PKCS7, iv192, { 4 });
         aes_module.encrypt_file(img, encrypted_path);
         aes_module.decrypt_file(encrypted_path, decrypted_path, 32);
     }

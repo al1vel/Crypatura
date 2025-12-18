@@ -5,6 +5,9 @@
 #include <thread>
 #include <fstream>
 #include <cstring>
+#include <iomanip>
+#include <filesystem>
+
 inline void increment_counter(uint8_t* block, size_t block_size, uint64_t value) {
     auto* low  = reinterpret_cast<uint64_t *>(block + block_size - 8);
     uint64_t old_low = *low;
@@ -165,7 +168,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
 
     switch (this->mode) {
         case Mode::ECB: {
-            std::cout << "Encrypt with ECB" << std::endl;
+            //std::cout << "Encrypt with ECB" << std::endl;
             int threads_cnt = getThreadsCount(4);
             std::vector<std::thread> threads;
             for (int i = 0; i < threads_cnt; ++i) {
@@ -183,7 +186,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::CBC: {
-            std::cout << "Encrypt with CBC" << std::endl;
+            //std::cout << "Encrypt with CBC" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CBC got Null IV" << std::endl;
                 return nullptr;
@@ -210,7 +213,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::PCBC: {
-            std::cout << "Encrypt with PCBC" << std::endl;
+            //std::cout << "Encrypt with PCBC" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with PCBC got Null IV" << std::endl;
                 return nullptr;
@@ -236,7 +239,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::CFB: {
-            std::cout << "Encrypt with CFB" << std::endl;
+            //std::cout << "Encrypt with CFB" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CFB got Null IV" << std::endl;
                 return nullptr;
@@ -262,7 +265,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::OFB: {
-            std::cout << "Encrypt with OFB" << std::endl;
+            //std::cout << "Encrypt with OFB" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with OFB got Null IV" << std::endl;
                 return nullptr;
@@ -296,7 +299,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::CTR: {
-            std::cout << "Encrypt with CTR" << std::endl;
+            //std::cout << "Encrypt with CTR" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CTR got Null IV" << std::endl;
                 return nullptr;
@@ -329,7 +332,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             break;
         }
         case Mode::RandomDelta: {
-            std::cout << "Encrypt with RD" << std::endl;
+            //std::cout << "Encrypt with RD" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with RD got Null IV" << std::endl;
                 return nullptr;
@@ -376,7 +379,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
 
     switch (this->mode) {
         case Mode::ECB: {
-            std::cout << "Decrypt with ECB" << std::endl;
+            //std::cout << "Decrypt with ECB" << std::endl;
             cipher->decrypt(data + (total_blocks - 1) * blocksiz, key, meta_block);
             size_t invaluable_bytes = meta_block[0];
 
@@ -401,7 +404,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::CBC: {
-            std::cout << "Decrypt with CBC" << std::endl;
+            //std::cout << "Decrypt with CBC" << std::endl;
             cipher->decrypt(data, key, meta_block);
 
             for (size_t part = 0; part < blocksiz / 8; ++part) {
@@ -432,7 +435,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::PCBC: {
-            std::cout << "Decrypt with PCBC" << std::endl;
+            //std::cout << "Decrypt with PCBC" << std::endl;
             cipher->decrypt(data, key, meta_block);
             *(reinterpret_cast<uint64_t*>(meta_block)) ^= *(reinterpret_cast<uint64_t*>(iv));
             size_t invaluable_bytes = meta_block[0];
@@ -458,7 +461,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::CFB: {
-            std::cout << "Decrypt with CFB" << std::endl;
+            //std::cout << "Decrypt with CFB" << std::endl;
             cipher->encrypt(iv, key, meta_block);
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(meta_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + part * 8));
@@ -486,7 +489,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::OFB: {
-            std::cout << "Decrypt with OFB" << std::endl;
+            //std::cout << "Decrypt with OFB" << std::endl;
             cipher->encrypt(iv, key, meta_block);
             uint8_t Ek[32] = {0};
             memcpy(Ek, meta_block, blocksiz);
@@ -519,7 +522,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::CTR: {
-            std::cout << "Decrypt with CTR" << std::endl;
+            //std::cout << "Decrypt with CTR" << std::endl;
             cipher->encrypt(iv, key, meta_block);
             for (size_t part = 0; part < blocksiz / 8; ++part) {
                 *(reinterpret_cast<uint64_t*>(meta_block + part * 8)) ^= *(reinterpret_cast<uint64_t*>(data + part * 8));
@@ -541,7 +544,7 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
 
         case Mode::RandomDelta: {
-            std::cout << "Decrypt with RD" << std::endl;
+            //std::cout << "Decrypt with RD" << std::endl;
             int delta = 4;
             cipher->encrypt(iv, key, meta_block);
             *(reinterpret_cast<uint64_t*>(meta_block)) ^= *(reinterpret_cast<uint64_t*>(data));
@@ -566,12 +569,48 @@ uint8_t *CipherModule::decrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
     }
 }
 
+std::string mode_str(Mode mode) {
+    switch (mode) {
+        case Mode::ECB:
+            return "ECB";
+        case Mode::CBC:
+            return "CBC";
+        case Mode::CTR:
+            return "CTR";
+        case Mode::OFB:
+            return "OFB";
+        case Mode::CFB:
+            return "CFB";
+        case Mode::PCBC:
+            return "PCBC";
+        case Mode::RandomDelta:
+            return "RD";
+        default:
+            return "";
+    }
+}
+
+void print_progress(double progress) { // progress: 0..1
+    const int barWidth = 20;
+    int pos = static_cast<int>(barWidth * progress);
+
+    std::cout << '\r' << '[';
+    for (int i = 0; i < barWidth; ++i) {
+        std::cout << (i < pos ? '#' : ' ');
+    }
+    std::cout << "] " << std::setw(3) << static_cast<int>(progress * 100.0) << '%' << std::flush;
+}
+
 void CipherModule::encrypt_file(const std::string &inputPath, const std::string &outputPath) const {
     std::ifstream in(inputPath, std::ios::binary);
     std::ofstream out(outputPath, std::ios::binary);
 
     constexpr size_t BLOCK_SIZE = 16384;
     uint8_t buffer[BLOCK_SIZE];
+
+    size_t total_size = std::filesystem::file_size(inputPath);
+    size_t cur = 0;
+    std::cout << "Encrypt with " << mode_str(mode) << " file of total " << total_size << " bytes" << std::endl;
 
     while (in) {
         in.read(reinterpret_cast<char*>(buffer), BLOCK_SIZE);
@@ -583,8 +622,11 @@ void CipherModule::encrypt_file(const std::string &inputPath, const std::string 
 
             out.write(reinterpret_cast<char*>(enc), out_len);
             delete[] enc;
+            cur += bytes_read;
         }
+        print_progress(static_cast<double>(cur) / static_cast<double>(total_size));
     }
+    std::cout << std::endl << std::endl;
 }
 
 void CipherModule::decrypt_file(const std::string &inputPath, const std::string &outputPath, size_t block_size) const {
@@ -592,7 +634,11 @@ void CipherModule::decrypt_file(const std::string &inputPath, const std::string 
     std::ofstream out(outputPath, std::ios::binary);
 
     size_t BLOCK_SIZE = 16384 + block_size;
-    uint8_t* buffer = new uint8_t[BLOCK_SIZE]();
+    auto* buffer = new uint8_t[BLOCK_SIZE]();
+
+    size_t total_size = std::filesystem::file_size(inputPath);
+    size_t cur = 0;
+    std::cout << "Decrypt with " << mode_str(mode) << " file of total " << total_size << " bytes" << std::endl;
 
     while (in) {
         in.read(reinterpret_cast<char*>(buffer), BLOCK_SIZE);
@@ -604,7 +650,10 @@ void CipherModule::decrypt_file(const std::string &inputPath, const std::string 
 
             out.write(reinterpret_cast<char*>(dec), out_len);
             delete[] dec;
+            cur += bytes_read;
         }
+        print_progress(static_cast<double>(cur) / static_cast<double>(total_size));
     }
     delete[] buffer;
+    std::cout << std::endl << std::endl;
 }
