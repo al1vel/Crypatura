@@ -77,20 +77,16 @@ void AES::decrypt(uint8_t *block, uint8_t *key, uint8_t *res) {
     memcpy(state, block, block_len);
 
     int rounds_cnt = key_len == 16 ? 10 : (key_len == 192 ? 12 : 14);
-    ++rounds_cnt;
-    size_t exp_key_size = rounds_cnt * block_len;
-    --rounds_cnt;
 
-    AES_Funcs::add_round_key(state, block_len, key + exp_key_size - block_len);
+    AES_Funcs::add_round_key(state, block_len, key + rounds_cnt * block_len);
 
     for (int i = 0; i < rounds_cnt; ++i) {
-        AES_Funcs::sub_bytes(state, block_len, reinterpret_cast<uint8_t*>(&S_box_inv));
         AES_Funcs::shift_rows(state, block_len, true);
+        AES_Funcs::sub_bytes(state, block_len, reinterpret_cast<uint8_t*>(&S_box_inv));
+        AES_Funcs::add_round_key(state, block_len, key + (rounds_cnt - i - 1) * block_len);
         if (i != rounds_cnt - 1) {
             AES_Funcs::mix_columns(state, block_len, true);
         }
-        AES_Funcs::add_round_key(state, block_len, key + exp_key_size - (i + 1) * block_len);
     }
-
     memcpy(res, state, block_len);
 }

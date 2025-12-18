@@ -18,7 +18,7 @@ void AESKeyExtension::key_extension(uint8_t *key, size_t init_key_len, uint8_t *
 
     for (size_t i = Nk; i < total_words; ++i) {
         uint32_t temp = w[i - 1];
-        if (i % Nb == 0) {
+        if (i % Nk == 0) {
             // RotWord + SubWord + Rcon
             uint8_t bytes[4] = { 0 };
             bytes[0] = (temp >> 24) & 0xFF;  // MSB

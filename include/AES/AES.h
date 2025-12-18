@@ -8,9 +8,9 @@
 class AES : public ISymmetricCipher {
 private:
     uint8_t* init_key;
-    uint8_t* exp_key;
 
 public:
+    uint8_t* exp_key;
     size_t key_len;
     size_t block_len;
     uint8_t S_box[256] = {};
