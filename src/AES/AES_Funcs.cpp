@@ -14,7 +14,12 @@ void AES_Funcs::shift_rows(uint8_t* state, size_t byte_len, bool inverted) {
     for (int i = 0; i < static_cast<int>(byte_len); ++i) tmp[i] = state[i];
 
     for (int r = 1; r < 4; ++r) {
-        const int shift = r % Nb;
+        int shift = 0;
+        if (byte_len == 32) {
+            shift = 2 * r;
+        } else {
+            shift = r;
+        }
         for (int c = 0; c < Nb; ++c) {
             int src_c;
             if (!inverted) {

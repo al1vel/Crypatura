@@ -189,6 +189,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with CBC" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CBC got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
 
@@ -216,6 +217,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with PCBC" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with PCBC got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
 
@@ -242,6 +244,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with CFB" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CFB got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
 
@@ -268,6 +271,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with OFB" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with OFB got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
 
@@ -302,6 +306,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with CTR" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with CTR got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
 
@@ -335,6 +340,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
             //std::cout << "Encrypt with RD" << std::endl;
             if (iv == nullptr) {
                 std::cerr << "Encrypt with RD got Null IV" << std::endl;
+                delete[] out;
                 return nullptr;
             }
             int delta = 4;
@@ -367,6 +373,7 @@ uint8_t *CipherModule::encrypt(uint8_t *data, size_t len_bytes, size_t *out_len)
         }
         default: {
             std::cout << "Default case in encrypt modes" << std::endl;
+            delete[] out;
             break;
         }
     }
@@ -604,6 +611,8 @@ void print_progress(double progress) { // progress: 0..1
 void CipherModule::encrypt_file(const std::string &inputPath, const std::string &outputPath) const {
     std::ifstream in(inputPath, std::ios::binary);
     std::ofstream out(outputPath, std::ios::binary);
+    if (!in) return;
+    if (!out) return;
 
     constexpr size_t BLOCK_SIZE = 16384;
     uint8_t buffer[BLOCK_SIZE];
@@ -619,6 +628,11 @@ void CipherModule::encrypt_file(const std::string &inputPath, const std::string 
         if (bytes_read > 0) {
             size_t out_len = 0;
             uint8_t* enc = encrypt(buffer, bytes_read, &out_len);
+            if (enc == nullptr) {
+                std::cout << "Encrypt failed" << std::endl;
+                delete[] enc;
+                return;
+            }
 
             out.write(reinterpret_cast<char*>(enc), out_len);
             delete[] enc;
@@ -632,6 +646,8 @@ void CipherModule::encrypt_file(const std::string &inputPath, const std::string 
 void CipherModule::decrypt_file(const std::string &inputPath, const std::string &outputPath, size_t block_size) const {
     std::ifstream in(inputPath, std::ios::binary);
     std::ofstream out(outputPath, std::ios::binary);
+    if (!in) return;
+    if (!out) return;
 
     size_t BLOCK_SIZE = 16384 + block_size;
     auto* buffer = new uint8_t[BLOCK_SIZE]();
@@ -647,6 +663,11 @@ void CipherModule::decrypt_file(const std::string &inputPath, const std::string 
         if (bytes_read > 0) {
             size_t out_len = 0;
             uint8_t* dec = decrypt(buffer, bytes_read, &out_len);
+            if (dec == nullptr) {
+                std::cout << "Decrypt failed" << std::endl;
+                delete[] dec;
+                return;
+            }
 
             out.write(reinterpret_cast<char*>(dec), out_len);
             delete[] dec;
